@@ -4,5 +4,7 @@ Yet another KOReader Sync server, written in Go for my own learning and experime
 
 See `docker-compose.yaml` for an example compose setup.
 
+Build with: `docker build --tag koreader-sync .`
 
-docker run -e LOG_LEVEL=DEBUG -p 8080:8080 -v ./data:/app/data go-ko-sync
+Run with: `docker run -e LOG_LEVEL=DEBUG -p 8080:8080 -v ./data:/app/data koreader-sync`
+Or: `docker-compose up -d`

@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    image: brunty/koreader-sync:v0.1
     ports:
       - "8080:8080"
     environment:
