@@ -14,6 +14,8 @@ func TestInit_Successfully(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+// Is this necessary as table creation is implicitely tested in other tests because y'know, WE CAN PUT STUFF IN THE
+// TABLES... no. It's not. But it was a fun test to write to poke around with the sqlite_schema stuff, so there's that
 func TestCreateTables_Successfully(t *testing.T) {
 	err := Init(":memory:")
 	assert.NoError(t, err)
