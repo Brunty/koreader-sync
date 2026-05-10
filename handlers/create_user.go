@@ -16,14 +16,14 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		slog.Debug("create user bad request body", err)
+		slog.Debug("create user bad request body", slog.Any("error", err))
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "username and password are required"})
 		return
 	}
 
 	if err := req.Validate(); err != nil {
-		slog.Debug("create user validation failed", err)
+		slog.Debug("create user validation failed", slog.Any("error", err))
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: err.Error()})
 		return
@@ -31,7 +31,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := req.MarshalToUser()
 	if err != nil {
-		slog.Debug("create user marshaling failed", err)
+		slog.Debug("create user marshaling failed", slog.Any("error", err))
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "something went wrong"})
 		return
@@ -39,7 +39,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = dao.StoreUser(user)
 	if err != nil {
-		slog.Error("store user error", err)
+		slog.Error("store user error", slog.Any("error", err))
 
 		// I hate having to do string matching here, try to find a better way to match (error code if possible?)
 		if strings.Contains(err.Error(), "UNIQUE constraint") {

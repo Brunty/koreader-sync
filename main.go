@@ -18,7 +18,7 @@ func main() {
 
 	err := db.Init()
 	if err != nil {
-		slog.Error("database init error", err)
+		slog.Error("database init error", slog.Any("error", err))
 		return
 	}
 	defer db.DBCon.Close()

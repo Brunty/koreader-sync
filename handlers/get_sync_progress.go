@@ -22,7 +22,7 @@ func GetSyncProgress(w http.ResponseWriter, r *http.Request) {
 	progress, err := dao.SelectProgress(userId, document)
 
 	if err != nil {
-		slog.Debug("get sync progress error", err)
+		slog.Debug("get sync progress error", slog.Any("error", err))
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "something went wrong"})
 		return
@@ -30,7 +30,7 @@ func GetSyncProgress(w http.ResponseWriter, r *http.Request) {
 
 	response, err := progress.MarshalToResponse()
 	if err != nil {
-		slog.Debug("get sync progress marshaling error", err)
+		slog.Debug("get sync progress marshaling error", slog.Any("error", err))
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "something went wrong"})
 		return

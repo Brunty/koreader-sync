@@ -2,7 +2,6 @@ package dao
 
 import (
 	"database/sql"
-	"log/slog"
 
 	"github.com/brunty/koreader-sync-server/db"
 	"github.com/brunty/koreader-sync-server/types"
@@ -40,8 +39,6 @@ func StoreProgress(progress types.Progress) error {
 		sql.Named("device_id", progress.DeviceId),
 		sql.Named("timestamp", progress.Timestamp),
 	}
-
-	slog.Debug("store args", args)
 
 	_, err := db.DBCon.Exec(`
 		INSERT INTO progress (
