@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/brunty/koreader-sync-server/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,4 +22,9 @@ func TestAuthUser(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
+
+	expectedRsp := &types.StatusResponse{Status: "authorized"}
+	actualRsp := &types.StatusResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
 }

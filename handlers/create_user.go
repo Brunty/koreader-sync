@@ -16,24 +16,18 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		slog.Debug("create user bad request body", slog.Any("error", err))
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "username and password are required"})
+		writeErrorResponse(w, http.StatusBadRequest, "username and password are required")
 		return
 	}
 
 	if err := req.Validate(); err != nil {
-		slog.Debug("create user validation failed", slog.Any("error", err))
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: err.Error()})
+		writeErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := req.MarshalToUser()
 	if err != nil {
-		slog.Debug("create user marshaling failed", slog.Any("error", err))
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "something went wrong"})
+		writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
 		return
 	}
 
@@ -43,17 +37,14 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 		// I hate having to do string matching here, try to find a better way to match (error code if possible?)
 		if strings.Contains(err.Error(), "UNIQUE constraint") {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "username is already taken"})
+			writeErrorResponse(w, http.StatusBadRequest, "username is already taken")
 			return
 		}
 
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "something went wrong"})
+		writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(&types.StatusResponse{Status: "user created"})
+	writeStatusResponse(w, http.StatusCreated, "user created")
 	return
 }
