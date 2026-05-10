@@ -10,9 +10,9 @@ import (
 )
 
 func TestStoreAndSelectProgress(t *testing.T) {
-
 	db.Init(":memory:")
 	db.CreateTables()
+	defer db.DBCon.Close()
 
 	now := time.Now()
 
@@ -43,9 +43,9 @@ func TestStoreAndSelectProgress(t *testing.T) {
 }
 
 func TestSelectProgressNotFound(t *testing.T) {
-
 	db.Init(":memory:")
 	db.CreateTables()
+	defer db.DBCon.Close()
 
 	progressFromDb, err := SelectProgress(1, "document-here")
 
