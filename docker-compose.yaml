@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - LOG_LEVEL=DEBUG # Debug puts a lot of info in the logs, not useful if you're not actively debugging something
+    volumes:
+      - data:/app/data # this is where the sqlite db file is stored
+    restart: unless-stopped
+
+volumes:
+  data:
