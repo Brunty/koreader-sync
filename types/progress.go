@@ -25,20 +25,21 @@ type SyncProgressRequest struct {
 }
 
 func (req *SyncProgressRequest) Validate() error {
+	var err error
 	if req.DeviceId == "" {
-		return errors.New("device_id is required")
+		err = errors.Join(err, errors.New("device_id is required"))
 	}
 	if req.Progress == "" {
-		return errors.New("progress is required")
+		err = errors.Join(err, errors.New("progress is required"))
 	}
 	if req.Document == "" {
-		return errors.New("document is required")
+		err = errors.Join(err, errors.New("document is required"))
 	}
 	if req.Device == "" {
-		return errors.New("device is required")
+		err = errors.Join(err, errors.New("device is required"))
 	}
 
-	return nil
+	return err
 }
 
 func (req *SyncProgressRequest) MarshalToProgress(userId int64) (Progress, error) {

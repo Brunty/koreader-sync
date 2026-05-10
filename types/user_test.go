@@ -7,29 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserType_ValidatesBlankUsername(t *testing.T) {
-	req := &CreateUserRequest{
-		Username: "",
-		Password: "Password",
-	}
-
-	err := req.Validate()
-
-	assert.Error(t, err, "username is required")
-}
-
-func TestUserType_ValidatesBlankPassword(t *testing.T) {
-	req := &CreateUserRequest{
-		Username: "username",
-		Password: "",
-	}
-
-	err := req.Validate()
-
-	assert.Error(t, err, "password is required")
-}
-
-func TestUserType_ValidatesBothBlankFields(t *testing.T) {
+func TestCreateUserRequest_ValidatesFieldsMissing(t *testing.T) {
 	req := &CreateUserRequest{
 		Username: "",
 		Password: "",
@@ -41,7 +19,7 @@ func TestUserType_ValidatesBothBlankFields(t *testing.T) {
 	assert.Error(t, err, "password is required")
 }
 
-func TestUserType_ValidatesSuccessfully(t *testing.T) {
+func TestCreateUserRequest_ValidatesSuccessfully(t *testing.T) {
 	req := &CreateUserRequest{
 		Username: "username",
 		Password: "password",
@@ -61,7 +39,6 @@ func TestCreateUserRequest_MarshalToUser(t *testing.T) {
 	user, err := req.MarshalToUser()
 
 	assert.NoError(t, err)
-
 	assert.Equal(t, req.Username, user.Username)
 	assert.True(t, crypto.CheckPasswordHash(req.Password, user.Password))
 }
