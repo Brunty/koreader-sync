@@ -27,7 +27,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		user, err := dao.SelectUser(username)
+		user, err := dao.SelectUserByUsername(username)
 		if user == nil || err != nil {
 			slog.Debug("Auth middleware fail, user not found")
 			w.Header().Set("Content-Type", "application/json")

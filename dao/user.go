@@ -1,13 +1,15 @@
 package dao
 
 import (
+	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/brunty/koreader-sync-server/db"
 	"github.com/brunty/koreader-sync-server/types"
 )
 
-func SelectUser(username string) (*types.User, error) {
+func SelectUserByUsername(username string) (*types.User, error) {
 	var user = types.User{}
 	user.Username = username
 
@@ -15,6 +17,10 @@ func SelectUser(username string) (*types.User, error) {
 	err := db.DBCon.QueryRow(query, username).Scan(&user.Id, &user.Password, &user.CreatedAt)
 
 	if err != nil {
+		// if there's no rows, that's fine, just return nil nil
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

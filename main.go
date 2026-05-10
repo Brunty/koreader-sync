@@ -16,7 +16,7 @@ import (
 func main() {
 	logger.Init()
 
-	err := db.Init()
+	err := db.Init("./data/data.db.sqlite3")
 	if err != nil {
 		slog.Error("database init error", slog.Any("error", err))
 		return

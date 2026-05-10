@@ -8,6 +8,17 @@ import (
 
 var DBCon *sql.DB
 
+func Init(dbFile string) error {
+	db, err := sql.Open("sqlite", dbFile)
+	if err != nil {
+		return err
+	}
+
+	DBCon = db
+
+	return nil
+}
+
 func CreateTables() {
 	DBCon.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
@@ -32,15 +43,4 @@ func CreateTables() {
 			UNIQUE(user_id, document)
 		)
 	`)
-}
-
-func Init() error {
-	db, err := sql.Open("sqlite", "./data/data.db.sqlite3")
-	if err != nil {
-		return err
-	}
-
-	DBCon = db
-
-	return nil
 }

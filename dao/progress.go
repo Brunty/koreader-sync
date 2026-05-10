@@ -2,6 +2,7 @@ package dao
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/brunty/koreader-sync-server/db"
 	"github.com/brunty/koreader-sync-server/types"
@@ -23,6 +24,10 @@ func SelectProgress(userId int64, document string) (*types.Progress, error) {
 	)
 
 	if err != nil {
+		// if there's no rows, that's fine, just return nil nil
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
