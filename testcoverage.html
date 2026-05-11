@@ -1,0 +1,824 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>crypto: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/brunty/koreader-sync-server/crypto/password.go (100.0%)</option>
+				
+				<option value="file1">github.com/brunty/koreader-sync-server/dao/progress.go (87.5%)</option>
+				
+				<option value="file2">github.com/brunty/koreader-sync-server/dao/user.go (85.7%)</option>
+				
+				<option value="file3">github.com/brunty/koreader-sync-server/db/db.go (88.9%)</option>
+				
+				<option value="file4">github.com/brunty/koreader-sync-server/handlers/auth_user.go (100.0%)</option>
+				
+				<option value="file5">github.com/brunty/koreader-sync-server/handlers/create_user.go (73.9%)</option>
+				
+				<option value="file6">github.com/brunty/koreader-sync-server/handlers/get_sync_progress.go (72.7%)</option>
+				
+				<option value="file7">github.com/brunty/koreader-sync-server/handlers/helpers.go (100.0%)</option>
+				
+				<option value="file8">github.com/brunty/koreader-sync-server/handlers/home.go (100.0%)</option>
+				
+				<option value="file9">github.com/brunty/koreader-sync-server/handlers/not_found.go (100.0%)</option>
+				
+				<option value="file10">github.com/brunty/koreader-sync-server/handlers/store_sync_progress.go (50.0%)</option>
+				
+				<option value="file11">github.com/brunty/koreader-sync-server/logger/logger.go (0.0%)</option>
+				
+				<option value="file12">github.com/brunty/koreader-sync-server/main.go (0.0%)</option>
+				
+				<option value="file13">github.com/brunty/koreader-sync-server/middleware/auth.go (100.0%)</option>
+				
+				<option value="file14">github.com/brunty/koreader-sync-server/routes.go (0.0%)</option>
+				
+				<option value="file15">github.com/brunty/koreader-sync-server/types/progress.go (100.0%)</option>
+				
+				<option value="file16">github.com/brunty/koreader-sync-server/types/user.go (90.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package crypto
+
+import "golang.org/x/crypto/bcrypt"
+
+func HashPassword(password string) (string, error) <span class="cov8" title="1">{
+        bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+        return string(bytes), err
+}</span>
+
+func CheckPasswordHash(password, hash string) bool <span class="cov8" title="1">{
+        err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+        return err == nil
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package dao
+
+import (
+        "database/sql"
+        "errors"
+
+        "github.com/brunty/koreader-sync-server/db"
+        "github.com/brunty/koreader-sync-server/types"
+)
+
+func SelectProgress(userId int64, document string) (*types.Progress, error) <span class="cov8" title="1">{
+        var progress = types.Progress{}
+        progress.UserID = userId
+        progress.Document = document
+
+        query := "SELECT id, progress, percentage, device, device_id, timestamp FROM progress WHERE user_id = ? AND document = ?"
+        err := db.DBCon.QueryRow(query, userId, document).Scan(
+                &amp;progress.ID,
+                &amp;progress.Progress,
+                &amp;progress.Percentage,
+                &amp;progress.Device,
+                &amp;progress.DeviceID,
+                &amp;progress.Timestamp,
+        )
+
+        if err != nil </span><span class="cov8" title="1">{
+                // if there's no rows, that's fine, just return nil nil
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov8" title="1">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov8" title="1">return &amp;progress, nil</span>
+}
+
+func StoreProgress(progress types.Progress) (*int64, error) <span class="cov8" title="1">{
+        args := []interface{}{
+                sql.Named("user_id", progress.UserID),
+                sql.Named("document", progress.Document),
+                sql.Named("progress", progress.Progress),
+                sql.Named("percentage", progress.Percentage),
+                sql.Named("device", progress.Device),
+                sql.Named("device_id", progress.DeviceID),
+                sql.Named("timestamp", progress.Timestamp),
+        }
+
+        res, err := db.DBCon.Exec(`
+                INSERT INTO progress (
+                        user_id,
+                        document,
+                        progress,
+                        percentage,
+                        device,
+                        device_id,
+                        timestamp
+                ) VALUES (
+                        @user_id,
+                        @document,
+                        @progress,
+                        @percentage,
+                        @device,
+                        @device_id,
+                        @timestamp
+                )
+                ON CONFLICT(user_id, document) DO UPDATE SET
+                         progress = @progress,
+                         percentage = @percentage,
+                         device = @device,
+                         device_id = @device_id,
+                         timestamp = @timestamp
+                `,
+                args...,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">id, _ := res.LastInsertId()
+
+        return &amp;id, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package dao
+
+import (
+        "database/sql"
+        "errors"
+        "time"
+
+        "github.com/brunty/koreader-sync-server/db"
+        "github.com/brunty/koreader-sync-server/types"
+)
+
+func SelectUserByUsername(username string) (*types.User, error) <span class="cov8" title="1">{
+        var user = types.User{}
+        user.Username = username
+
+        query := "SELECT id, password, created_at FROM users WHERE username = $1"
+        err := db.DBCon.QueryRow(query, username).Scan(&amp;user.Id, &amp;user.Password, &amp;user.CreatedAt)
+
+        if err != nil </span><span class="cov8" title="1">{
+                // if there are no rows, that's fine, just return nil, nil
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov8" title="1">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov8" title="1">return &amp;user, nil</span>
+}
+
+func StoreUser(user types.User) (*int64, error) <span class="cov8" title="1">{
+        res, err := db.DBCon.Exec("INSERT INTO users (username, password, created_at) VALUES (?, ?, ?)", user.Username, user.Password, time.Now())
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">id, _ := res.LastInsertId()
+
+        return &amp;id, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package db
+
+import (
+        "database/sql"
+
+        _ "github.com/glebarez/go-sqlite"
+)
+
+var DBCon *sql.DB
+
+func Init(dbFile string) error <span class="cov8" title="1">{
+        db, err := sql.Open("sqlite", dbFile)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">DBCon = db
+
+        return nil</span>
+}
+
+func CreateTables() <span class="cov8" title="1">{
+        DBCon.Exec(`
+                CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username TEXT UNIQUE NOT NULL,
+                        password TEXT NOT NULL,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                  )
+        `)
+
+        DBCon.Exec(`
+                CREATE TABLE IF NOT EXISTS progress (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        document TEXT NOT NULL,
+                        progress TEXT NOT NULL,
+                        percentage REAL NOT NULL,
+                        device TEXT NOT NULL,
+                        device_id TEXT NOT NULL,
+                        timestamp DATETIME NOT NULL,
+                        FOREIGN KEY(user_id) REFERENCES users(id),
+                        UNIQUE(user_id, document)
+                )
+        `)
+}</span>
+func EmptyTables() <span class="cov8" title="1">{
+        DBCon.Exec("DELETE FROM users")
+        DBCon.Exec("DELETE FROM progress")
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package handlers
+
+import (
+        "net/http"
+)
+
+func AuthUser(w http.ResponseWriter, _ *http.Request) <span class="cov8" title="1">{
+        // We don't needto do any auth checking here because this handler is protected by middleware.AuthMiddleware and
+        // so if we've got here, we're auth'd, so let's just return a success message
+        w.Header().Set("Content-Type", "application/json")
+        writeStatusResponse(w, http.StatusOK, "authorized")
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package handlers
+
+import (
+        "encoding/json"
+        "log/slog"
+        "net/http"
+        "strings"
+
+        "github.com/brunty/koreader-sync-server/dao"
+        "github.com/brunty/koreader-sync-server/types"
+)
+
+func CreateUser(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        req := &amp;types.CreateUserRequest{}
+        w.Header().Set("Content-Type", "application/json")
+
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov0" title="0">{
+                writeErrorResponse(w, http.StatusBadRequest, "username and password are required")
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := req.Validate(); err != nil </span><span class="cov8" title="1">{
+                writeErrorResponse(w, http.StatusBadRequest, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">user, err := req.MarshalToUser()
+        if err != nil </span><span class="cov0" title="0">{
+                writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
+                return
+        }</span>
+
+        <span class="cov8" title="1">_, err = dao.StoreUser(user)
+        if err != nil </span><span class="cov8" title="1">{
+                slog.Error("store user error", slog.Any("error", err))
+
+                // I hate having to do string matching here, try to find a better way to match (error code if possible?)
+                if strings.Contains(err.Error(), "UNIQUE constraint") </span><span class="cov8" title="1">{
+                        writeErrorResponse(w, http.StatusBadRequest, "username is already taken")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
+                return</span>
+        }
+
+        <span class="cov8" title="1">writeStatusResponse(w, http.StatusCreated, "user created")
+        return</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package handlers
+
+import (
+        "encoding/json"
+        "log/slog"
+        "net/http"
+
+        "github.com/brunty/koreader-sync-server/dao"
+)
+
+func GetSyncProgress(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        w.Header().Set("Content-Type", "application/json")
+        document := r.PathValue("document")
+        if document == "" </span><span class="cov8" title="1">{
+                writeErrorResponse(w, http.StatusNotFound, "not found")
+                return
+        }</span>
+
+        <span class="cov8" title="1">userId := r.Context().Value("user").(int64)
+        progress, err := dao.SelectProgress(userId, document)
+
+        if err != nil </span><span class="cov0" title="0">{
+                slog.Debug("get sync progress error", slog.Any("error", err))
+                writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
+                return
+        }</span>
+
+        <span class="cov8" title="1">if progress == nil </span><span class="cov8" title="1">{
+                slog.Debug("progress not found")
+                writeErrorResponse(w, http.StatusNotFound, "not found")
+                return
+        }</span>
+
+        <span class="cov8" title="1">response, err := progress.MarshalToResponse()
+        if err != nil </span><span class="cov0" title="0">{
+                slog.Debug("get sync progress marshaling error", slog.Any("error", err))
+                writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
+                return
+        }</span>
+
+        <span class="cov8" title="1">json.NewEncoder(w).Encode(response)
+
+        return</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package handlers
+
+import (
+        "encoding/json"
+        "net/http"
+
+        "github.com/brunty/koreader-sync-server/types"
+)
+
+func writeErrorResponse(w http.ResponseWriter, status int, message string) <span class="cov8" title="1">{
+        w.WriteHeader(status)
+        json.NewEncoder(w).Encode(&amp;types.ErrorResponse{Error: message})
+}</span>
+
+func writeStatusResponse(w http.ResponseWriter, status int, message string) <span class="cov8" title="1">{
+        w.WriteHeader(status)
+        json.NewEncoder(w).Encode(&amp;types.StatusResponse{Status: message})
+}</span>
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package handlers
+
+import (
+        "net/http"
+)
+
+func Home(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        w.Header().Set("Content-Type", "application/json")
+        writeStatusResponse(w, http.StatusOK, "This is a server compatible with the KOReader Sync Protocol")
+        return
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package handlers
+
+import (
+        "net/http"
+)
+
+func NotFound(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        w.Header().Set("Content-Type", "application/json")
+        writeErrorResponse(w, http.StatusNotFound, "not found")
+}</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package handlers
+
+import (
+        "encoding/json"
+        "log/slog"
+        "net/http"
+
+        "github.com/brunty/koreader-sync-server/dao"
+        "github.com/brunty/koreader-sync-server/types"
+)
+
+func StoreSyncProgress(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        req := &amp;types.SyncProgressRequest{}
+        w.Header().Set("Content-Type", "application/json")
+
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov0" title="0">{
+                slog.Debug("store sync progress bad request body", slog.Any("error", err))
+                writeErrorResponse(w, http.StatusBadRequest, "bad body content")
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := req.Validate(); err != nil </span><span class="cov0" title="0">{
+                slog.Debug("create user validation failed", slog.Any("error", err))
+                writeErrorResponse(w, http.StatusBadRequest, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">userId := r.Context().Value("user").(int64)
+        progress, err := req.MarshalToProgress(userId)
+        if err != nil </span><span class="cov0" title="0">{
+                slog.Debug("store sync marshaling failed", slog.Any("error", err))
+                writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
+                return
+        }</span>
+
+        <span class="cov8" title="1">_, err = dao.StoreProgress(progress)
+        if err != nil </span><span class="cov0" title="0">{
+                slog.Error("store progress error", slog.Any("error", err))
+                writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
+                return
+        }</span>
+
+        <span class="cov8" title="1">writeStatusResponse(w, http.StatusOK, "sync stored")
+
+        return</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package logger
+
+import (
+        "log/slog"
+        "os"
+)
+
+var Logger *slog.Logger
+
+func getLogLevel() slog.Level <span class="cov0" title="0">{
+        switch os.Getenv("LOG_LEVEL") </span>{
+        case "DEBUG":<span class="cov0" title="0">
+                return slog.LevelDebug</span>
+        case "INFO":<span class="cov0" title="0">
+                return slog.LevelInfo</span>
+        case "WARN":<span class="cov0" title="0">
+                return slog.LevelWarn</span>
+        case "ERROR":<span class="cov0" title="0">
+                return slog.LevelError</span>
+        default:<span class="cov0" title="0">
+                return slog.LevelWarn</span>
+        }
+}
+
+func Init() <span class="cov0" title="0">{
+        Logger = slog.New(slog.NewTextHandler(os.Stderr, &amp;slog.HandlerOptions{
+                Level: getLogLevel(),
+        }))
+
+        slog.SetDefault(Logger)
+}</span>
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package main
+
+import (
+        "fmt"
+        "log"
+        "log/slog"
+        "net/http"
+        "os"
+
+        "github.com/brunty/koreader-sync-server/db"
+        "github.com/brunty/koreader-sync-server/logger"
+)
+
+func main() <span class="cov0" title="0">{
+        logger.Init()
+
+        err := db.Init("./data/data.db.sqlite3")
+        if err != nil </span><span class="cov0" title="0">{
+                slog.Error("database init error", slog.Any("error", err))
+                return
+        }</span>
+        <span class="cov0" title="0">defer db.DBCon.Close()
+
+        db.CreateTables()
+        slog.Debug("DB Tables created")
+
+        mux := &amp;ServeMux{http.NewServeMux()}
+
+        mux.RegisterRoutes()
+
+        port, found := os.LookupEnv("PORT")
+
+        if !found </span><span class="cov0" title="0">{
+                port = "8080"
+        }</span>
+
+        <span class="cov0" title="0">log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), mux))</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package middleware
+
+import (
+        "context"
+        "encoding/json"
+        "log/slog"
+        "net/http"
+
+        "github.com/brunty/koreader-sync-server/crypto"
+        dao "github.com/brunty/koreader-sync-server/dao"
+        "github.com/brunty/koreader-sync-server/types"
+)
+
+func AuthMiddleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                slog.Debug("Auth middleware invoked")
+
+                username := r.Header.Get("x-auth-user")
+                password := r.Header.Get("x-auth-key")
+
+                if username == "" || password == "" </span><span class="cov8" title="1">{
+                        slog.Debug("Auth middleware fail, username or password empty")
+                        w.Header().Set("Content-Type", "application/json")
+                        w.WriteHeader(http.StatusUnauthorized)
+                        json.NewEncoder(w).Encode(&amp;types.StatusResponse{Status: "unauthorized"})
+                        // don't continue down the middleware chain as they need to be authorized
+                        return
+                }</span>
+
+                <span class="cov8" title="1">user, err := dao.SelectUserByUsername(username)
+                if user == nil || err != nil </span><span class="cov8" title="1">{
+                        slog.Debug("Auth middleware fail, user not found")
+                        w.Header().Set("Content-Type", "application/json")
+                        w.WriteHeader(http.StatusUnauthorized)
+                        json.NewEncoder(w).Encode(&amp;types.StatusResponse{Status: "unauthorized"})
+                        // don't continue down the middleware chain as they need to be authorized
+                        return
+                }</span>
+
+                <span class="cov8" title="1">passwordsMatch := crypto.CheckPasswordHash(password, user.Password)
+
+                if !passwordsMatch </span><span class="cov8" title="1">{
+                        slog.Debug("Auth middleware fail, password incorrect")
+                        w.Header().Set("Content-Type", "application/json")
+                        w.WriteHeader(http.StatusUnauthorized)
+                        json.NewEncoder(w).Encode(&amp;types.StatusResponse{Status: "unauthorized"})
+                        // don't continue down the middleware chain as they need to be authorized
+                        return
+                }</span>
+
+                // Attach the user ID to the context so they're usable elsewhere
+                <span class="cov8" title="1">ctx := context.WithValue(r.Context(), "user", user.Id)
+
+                slog.Debug("Auth middleware success for user", slog.Int("user ID", int(user.Id)))
+
+                next.ServeHTTP(w, r.WithContext(ctx))</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package main
+
+import (
+        "net/http"
+
+        "github.com/brunty/koreader-sync-server/handlers"
+        "github.com/brunty/koreader-sync-server/middleware"
+)
+
+type ServeMux struct {
+        *http.ServeMux
+}
+
+func (mux ServeMux) RegisterRoutes() ServeMux <span class="cov0" title="0">{
+        // See https://github.com/Open-Audiobook/koreader-sync-protocol#api-reference-summary for the reference of the
+        // endpoints and spec for how this server should work
+
+        mux.Handle("GET /{$}", http.HandlerFunc(handlers.Home))
+
+        mux.Handle("POST /users/create", http.HandlerFunc(handlers.CreateUser))
+
+        // The following routes need an auth'd user to access them
+        mux.Handle("GET /users/auth", middleware.AuthMiddleware(http.HandlerFunc(handlers.AuthUser)))
+        mux.Handle("PUT /syncs/progress", middleware.AuthMiddleware(http.HandlerFunc(handlers.StoreSyncProgress)))
+        mux.Handle("GET /syncs/progress/{document}", middleware.AuthMiddleware(http.HandlerFunc(handlers.GetSyncProgress)))
+
+        mux.Handle("/{path...}", http.HandlerFunc(handlers.NotFound))
+
+        return mux
+}</span>
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package types
+
+import (
+        "errors"
+        "time"
+)
+
+type Progress struct {
+        ID         int64
+        UserID     int64
+        Document   string
+        Progress   string
+        Percentage float64
+        Device     string
+        DeviceID   string
+        Timestamp  time.Time
+}
+
+type SyncProgressRequest struct {
+        DeviceID   string  `json:"device_id"`
+        Progress   string  `json:"progress"`
+        Document   string  `json:"document"`
+        Percentage float64 `json:"percentage"`
+        Device     string  `json:"device"`
+}
+
+func (req *SyncProgressRequest) Validate() error <span class="cov8" title="1">{
+        var err error
+        if req.DeviceID == "" </span><span class="cov8" title="1">{
+                err = errors.Join(err, errors.New("device_id is required"))
+        }</span>
+        <span class="cov8" title="1">if req.Progress == "" </span><span class="cov8" title="1">{
+                err = errors.Join(err, errors.New("progress is required"))
+        }</span>
+        <span class="cov8" title="1">if req.Document == "" </span><span class="cov8" title="1">{
+                err = errors.Join(err, errors.New("document is required"))
+        }</span>
+        <span class="cov8" title="1">if req.Device == "" </span><span class="cov8" title="1">{
+                err = errors.Join(err, errors.New("device is required"))
+        }</span>
+
+        <span class="cov8" title="1">return err</span>
+}
+
+func (req *SyncProgressRequest) MarshalToProgress(userID int64) (Progress, error) <span class="cov8" title="1">{
+        return Progress{
+                UserID:     userID,
+                Document:   req.Document,
+                Progress:   req.Progress,
+                Percentage: req.Percentage,
+                Device:     req.Device,
+                DeviceID:   req.DeviceID,
+                Timestamp:  time.Now(),
+        }, nil
+}</span>
+
+func (progress *Progress) MarshalToResponse() (ProgressResponse, error) <span class="cov8" title="1">{
+        if progress == nil </span><span class="cov8" title="1">{
+                return ProgressResponse{}, nil
+        }</span>
+
+        <span class="cov8" title="1">return ProgressResponse{
+                DeviceID:   progress.DeviceID,
+                Progress:   progress.Progress,
+                Document:   progress.Document,
+                Percentage: progress.Percentage,
+                Device:     progress.Device,
+                Timestamp:  progress.Timestamp.Unix(),
+        }, nil</span>
+}
+
+type ProgressResponse struct {
+        DeviceID   string  `json:"device_id"`
+        Progress   string  `json:"progress"`
+        Document   string  `json:"document"`
+        Percentage float64 `json:"percentage"`
+        Device     string  `json:"device"`
+        Timestamp  int64   `json:"timestamp"`
+}
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package types
+
+import (
+        "errors"
+        "time"
+
+        "github.com/brunty/koreader-sync-server/crypto"
+)
+
+type User struct {
+        Id        int64
+        Username  string
+        Password  string
+        CreatedAt time.Time
+}
+
+type CreateUserRequest struct {
+        Username string `json:"username"`
+        Password string `json:"password"`
+}
+
+func (req *CreateUserRequest) Validate() error <span class="cov8" title="1">{
+        var err error
+        if req.Username == "" </span><span class="cov8" title="1">{
+                err = errors.Join(err, errors.New("username is required"))
+        }</span>
+        <span class="cov8" title="1">if req.Password == "" </span><span class="cov8" title="1">{
+                err = errors.Join(err, errors.New("password is required"))
+        }</span>
+
+        <span class="cov8" title="1">return err</span>
+}
+
+func (req *CreateUserRequest) MarshalToUser() (User, error) <span class="cov8" title="1">{
+        hashedPw, err := crypto.HashPassword(req.Password)
+        if err != nil </span><span class="cov0" title="0">{
+                return User{}, err
+        }</span>
+
+        <span class="cov8" title="1">return User{
+                Username:  req.Username,
+                Password:  hashedPw,
+                CreatedAt: time.Now(),
+        }, nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

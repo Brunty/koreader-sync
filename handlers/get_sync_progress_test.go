@@ -71,7 +71,7 @@ func TestGetSyncProgress_Successfully(t *testing.T) {
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
-func TestGetSyncProgress_SyncNotFound(t *testing.T) {
+func TestGetSyncProgress_SyncNotFoundInDB(t *testing.T) {
 	db.Init(":memory:")
 	db.CreateTables()
 	defer db.EmptyTables()
@@ -91,6 +91,47 @@ func TestGetSyncProgress_SyncNotFound(t *testing.T) {
 	req.Header.Add("x-auth-user", "test-username-here")
 	req.Header.Add("x-auth-key", "test-password-here")
 	req.SetPathValue("document", "document-here")
+	req = req.WithContext(context.WithValue(req.Context(), "user", *userID))
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(GetSyncProgress)
+
+	handler.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusNotFound, rr.Code)
+
+	expectedRsp := &types.ProgressResponse{
+		Document:   "",
+		Progress:   "",
+		Percentage: 0,
+		Device:     "",
+		DeviceID:   "",
+		Timestamp:  0,
+	}
+	actualRsp := &types.ProgressResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
+}
+
+func TestGetSyncProgress_SyncNotFoundNoURLParam(t *testing.T) {
+	db.Init(":memory:")
+	db.CreateTables()
+	defer db.EmptyTables()
+	defer db.DBCon.Close()
+
+	now := time.Now()
+	password, _ := crypto.HashPassword("test-password-here")
+	user := types.User{
+		Username:  "test-username-here",
+		Password:  password,
+		CreatedAt: now,
+	}
+	userID, err := dao.StoreUser(user)
+	assert.NoError(t, err)
+
+	req, _ := http.NewRequest("GET", "/syncs/progress/document-here", nil)
+	req.Header.Add("x-auth-user", "test-username-here")
+	req.Header.Add("x-auth-key", "test-password-here")
 	req = req.WithContext(context.WithValue(req.Context(), "user", *userID))
 
 	rr := httptest.NewRecorder()

@@ -77,5 +77,19 @@ func TestProgress_MarshalToResponse(t *testing.T) {
 	assert.Equal(t, progress.Percentage, rsp.Percentage)
 	assert.Equal(t, progress.Device, rsp.Device)
 	assert.Equal(t, int64(1778445298), rsp.Timestamp)
+}
 
+func TestProgress_MarshalNilToResponse(t *testing.T) {
+	progress := &Progress{}
+	progress = nil
+
+	rsp, err := progress.MarshalToResponse()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "", rsp.DeviceID)
+	assert.Equal(t, "", rsp.Progress)
+	assert.Equal(t, "", rsp.Document)
+	assert.Equal(t, 0.0, rsp.Percentage)
+	assert.Equal(t, "", rsp.Device)
+	assert.Equal(t, int64(0), rsp.Timestamp)
 }
