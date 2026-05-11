@@ -17,12 +17,12 @@ func TestStoreAndSelectProgress(t *testing.T) {
 	now := time.Now()
 
 	progress := types.Progress{
-		UserId:     1,
+		UserID:     1,
 		Document:   "document-here",
 		Progress:   "progress-here",
 		Percentage: 0.35,
 		Device:     "device-here",
-		DeviceId:   "device-id-here",
+		DeviceID:   "device-id-here",
 		Timestamp:  now,
 	}
 
@@ -34,12 +34,12 @@ func TestStoreAndSelectProgress(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	assert.Equal(t, progress.UserId, progressFromDb.UserId)
+	assert.Equal(t, progress.UserID, progressFromDb.UserID)
 	assert.Equal(t, progress.Document, progressFromDb.Document)
 	assert.Equal(t, progress.Progress, progressFromDb.Progress)
 	assert.Equal(t, progress.Percentage, progressFromDb.Percentage)
 	assert.Equal(t, progress.Device, progressFromDb.Device)
-	assert.Equal(t, progress.DeviceId, progressFromDb.DeviceId)
+	assert.Equal(t, progress.DeviceID, progressFromDb.DeviceID)
 }
 
 func TestSelectProgressNotFound(t *testing.T) {

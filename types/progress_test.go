@@ -9,7 +9,7 @@ import (
 
 func TestSyncProgressRequest_ValidatesFieldsMissing(t *testing.T) {
 	req := &SyncProgressRequest{
-		DeviceId:   "device-id-here",
+		DeviceID:   "device-id-here",
 		Progress:   "progress-here",
 		Document:   "document-here",
 		Percentage: 0.34,
@@ -23,7 +23,7 @@ func TestSyncProgressRequest_ValidatesFieldsMissing(t *testing.T) {
 
 func TestSyncProgressRequest_ValidatesSuccessfully(t *testing.T) {
 	req := &SyncProgressRequest{
-		DeviceId: "",
+		DeviceID: "",
 		Progress: "",
 		Document: "",
 		Device:   "",
@@ -39,7 +39,7 @@ func TestSyncProgressRequest_ValidatesSuccessfully(t *testing.T) {
 
 func TestSyncProgressRequest_MarshalToProgress(t *testing.T) {
 	req := &SyncProgressRequest{
-		DeviceId:   "device-id-here",
+		DeviceID:   "device-id-here",
 		Progress:   "progress-here",
 		Document:   "document-here",
 		Percentage: 0.34,
@@ -49,7 +49,7 @@ func TestSyncProgressRequest_MarshalToProgress(t *testing.T) {
 	progress, err := req.MarshalToProgress(56)
 
 	assert.NoError(t, err)
-	assert.Equal(t, req.DeviceId, progress.DeviceId)
+	assert.Equal(t, req.DeviceID, progress.DeviceID)
 	assert.Equal(t, req.Progress, progress.Progress)
 	assert.Equal(t, req.Document, progress.Document)
 	assert.Equal(t, req.Percentage, progress.Percentage)
@@ -58,20 +58,20 @@ func TestSyncProgressRequest_MarshalToProgress(t *testing.T) {
 
 func TestProgress_MarshalToResponse(t *testing.T) {
 	progress := &Progress{
-		Id:         1234, // irrelevant to output testing, but here for completeness
-		UserId:     2345, // irrelevant to output testing, but here for completeness
+		ID:         1234, // irrelevant to output testing, but here for completeness
+		UserID:     2345, // irrelevant to output testing, but here for completeness
 		Document:   "document-here",
 		Progress:   "progress-here",
 		Percentage: 0.78,
 		Device:     "device-here",
-		DeviceId:   "device-id-here",
+		DeviceID:   "device-id-here",
 		Timestamp:  time.Date(2026, 05, 10, 20, 34, 58, 651387237, time.UTC),
 	}
 
 	rsp, err := progress.MarshalToResponse()
 
 	assert.NoError(t, err)
-	assert.Equal(t, progress.DeviceId, rsp.DeviceId)
+	assert.Equal(t, progress.DeviceID, rsp.DeviceID)
 	assert.Equal(t, progress.Progress, rsp.Progress)
 	assert.Equal(t, progress.Document, rsp.Document)
 	assert.Equal(t, progress.Percentage, rsp.Percentage)

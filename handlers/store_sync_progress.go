@@ -16,15 +16,13 @@ func StoreSyncProgress(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		slog.Debug("store sync progress bad request body", slog.Any("error", err))
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "bad body content"})
+		writeErrorResponse(w, http.StatusBadRequest, "bad body content")
 		return
 	}
 
 	if err := req.Validate(); err != nil {
 		slog.Debug("create user validation failed", slog.Any("error", err))
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: err.Error()})
+		writeErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -32,8 +30,7 @@ func StoreSyncProgress(w http.ResponseWriter, r *http.Request) {
 	progress, err := req.MarshalToProgress(userId)
 	if err != nil {
 		slog.Debug("store sync marshaling failed", slog.Any("error", err))
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "something went wrong"})
+		writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
 		return
 	}
 
@@ -41,13 +38,11 @@ func StoreSyncProgress(w http.ResponseWriter, r *http.Request) {
 	err = dao.StoreProgress(progress)
 	if err != nil {
 		slog.Error("store progress error", slog.Any("error", err))
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "something went wrong"})
+		writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(&types.StatusResponse{Status: "sync stored"})
+	writeStatusResponse(w, http.StatusOK, "sync stored")
 
 	return
 }

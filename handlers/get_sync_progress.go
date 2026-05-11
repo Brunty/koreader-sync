@@ -6,15 +6,13 @@ import (
 	"net/http"
 
 	"github.com/brunty/koreader-sync-server/dao"
-	"github.com/brunty/koreader-sync-server/types"
 )
 
 func GetSyncProgress(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	document := r.PathValue("document")
 	if document == "" {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "not found"})
+		writeErrorResponse(w, http.StatusNotFound, "not found")
 		return
 	}
 
@@ -23,16 +21,14 @@ func GetSyncProgress(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		slog.Debug("get sync progress error", slog.Any("error", err))
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "something went wrong"})
+		writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
 		return
 	}
 
 	response, err := progress.MarshalToResponse()
 	if err != nil {
 		slog.Debug("get sync progress marshaling error", slog.Any("error", err))
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(&types.ErrorResponse{Error: "something went wrong"})
+		writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")
 		return
 	}
 

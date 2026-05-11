@@ -31,7 +31,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = dao.StoreUser(user)
+	_, err = dao.StoreUser(user)
 	if err != nil {
 		slog.Error("store user error", slog.Any("error", err))
 

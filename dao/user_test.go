@@ -22,7 +22,7 @@ func TestStoreAndSelectUser(t *testing.T) {
 		CreatedAt: now,
 	}
 
-	err := StoreUser(user)
+	_, err := StoreUser(user)
 
 	assert.NoError(t, err)
 

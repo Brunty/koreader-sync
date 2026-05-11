@@ -6,18 +6,18 @@ import (
 )
 
 type Progress struct {
-	Id         int64
-	UserId     int64
+	ID         int64
+	UserID     int64
 	Document   string
 	Progress   string
 	Percentage float64
 	Device     string
-	DeviceId   string
+	DeviceID   string
 	Timestamp  time.Time
 }
 
 type SyncProgressRequest struct {
-	DeviceId   string  `json:"device_id"`
+	DeviceID   string  `json:"device_id"`
 	Progress   string  `json:"progress"`
 	Document   string  `json:"document"`
 	Percentage float64 `json:"percentage"`
@@ -26,7 +26,7 @@ type SyncProgressRequest struct {
 
 func (req *SyncProgressRequest) Validate() error {
 	var err error
-	if req.DeviceId == "" {
+	if req.DeviceID == "" {
 		err = errors.Join(err, errors.New("device_id is required"))
 	}
 	if req.Progress == "" {
@@ -42,21 +42,21 @@ func (req *SyncProgressRequest) Validate() error {
 	return err
 }
 
-func (req *SyncProgressRequest) MarshalToProgress(userId int64) (Progress, error) {
+func (req *SyncProgressRequest) MarshalToProgress(userID int64) (Progress, error) {
 	return Progress{
-		UserId:     userId,
+		UserID:     userID,
 		Document:   req.Document,
 		Progress:   req.Progress,
 		Percentage: req.Percentage,
 		Device:     req.Device,
-		DeviceId:   req.DeviceId,
+		DeviceID:   req.DeviceID,
 		Timestamp:  time.Now(),
 	}, nil
 }
 
 func (progress *Progress) MarshalToResponse() (ProgressResponse, error) {
 	return ProgressResponse{
-		DeviceId:   progress.DeviceId,
+		DeviceID:   progress.DeviceID,
 		Progress:   progress.Progress,
 		Document:   progress.Document,
 		Percentage: progress.Percentage,
@@ -66,7 +66,7 @@ func (progress *Progress) MarshalToResponse() (ProgressResponse, error) {
 }
 
 type ProgressResponse struct {
-	DeviceId   string  `json:"device_id"`
+	DeviceID   string  `json:"device_id"`
 	Progress   string  `json:"progress"`
 	Document   string  `json:"document"`
 	Percentage float64 `json:"percentage"`

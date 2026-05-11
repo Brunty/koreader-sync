@@ -11,9 +11,9 @@ import (
 )
 
 func TestAuthUser(t *testing.T) {
-	// So, this test is a basic one because the auth user endpoint doesn't actually really do anything
-	// Because it's protected by middleware.AuthMiddleware it doesn't actually need to do anything except return a
-	// success message because if it's passed the middleware, it's auth'd
+	// So, this test is basic because the auth user endpoint doesn't actually really do anything
+	// It's protected by middleware.AuthMiddleware it doesn't actually need to do anything except return a
+	// success message because if it's passed the middleware, it is authorized
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
 
 	rr := httptest.NewRecorder()

@@ -10,16 +10,16 @@ import (
 
 func SelectProgress(userId int64, document string) (*types.Progress, error) {
 	var progress = types.Progress{}
-	progress.UserId = userId
+	progress.UserID = userId
 	progress.Document = document
 
 	query := "SELECT id, progress, percentage, device, device_id, timestamp FROM progress WHERE user_id = ? AND document = ?"
 	err := db.DBCon.QueryRow(query, userId, document).Scan(
-		&progress.Id,
+		&progress.ID,
 		&progress.Progress,
 		&progress.Percentage,
 		&progress.Device,
-		&progress.DeviceId,
+		&progress.DeviceID,
 		&progress.Timestamp,
 	)
 
@@ -36,12 +36,12 @@ func SelectProgress(userId int64, document string) (*types.Progress, error) {
 
 func StoreProgress(progress types.Progress) error {
 	args := []interface{}{
-		sql.Named("user_id", progress.UserId),
+		sql.Named("user_id", progress.UserID),
 		sql.Named("document", progress.Document),
 		sql.Named("progress", progress.Progress),
 		sql.Named("percentage", progress.Percentage),
 		sql.Named("device", progress.Device),
-		sql.Named("device_id", progress.DeviceId),
+		sql.Named("device_id", progress.DeviceID),
 		sql.Named("timestamp", progress.Timestamp),
 	}
 

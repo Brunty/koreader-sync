@@ -17,7 +17,7 @@ func SelectUserByUsername(username string) (*types.User, error) {
 	err := db.DBCon.QueryRow(query, username).Scan(&user.Id, &user.Password, &user.CreatedAt)
 
 	if err != nil {
-		// if there's no rows, that's fine, just return nil nil
+		// if there are no rows, that's fine, just return nil, nil
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -27,11 +27,13 @@ func SelectUserByUsername(username string) (*types.User, error) {
 	return &user, nil
 }
 
-func StoreUser(user types.User) error {
-	_, err := db.DBCon.Exec("INSERT INTO users (username, password, created_at) VALUES (?, ?, ?)", user.Username, user.Password, time.Now())
+func StoreUser(user types.User) (*int64, error) {
+	res, err := db.DBCon.Exec("INSERT INTO users (username, password, created_at) VALUES (?, ?, ?)", user.Username, user.Password, time.Now())
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	id, _ := res.LastInsertId()
+
+	return &id, nil
 }
