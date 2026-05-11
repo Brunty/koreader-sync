@@ -1,23 +1,28 @@
-package dao
+package sync_progress
 
 import (
 	"testing"
 	"time"
 
 	"github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/types"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestStoreAndSelectProgress(t *testing.T) {
+func setupInMemoryDb() {
 	db.Init(":memory:")
 	db.CreateTables()
+}
+
+func TestStoreAndSelectProgress(t *testing.T) {
+	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
+	repo := NewSyncProgressRepository(db.DBCon)
+
 	now := time.Now()
 
-	progress := types.Progress{
+	progress := SyncProgress{
 		UserID:     1,
 		Document:   "document-here",
 		Progress:   "progress-here",
@@ -27,11 +32,11 @@ func TestStoreAndSelectProgress(t *testing.T) {
 		Timestamp:  now,
 	}
 
-	_, err := StoreProgress(progress)
+	_, err := repo.Store(progress)
 
 	assert.NoError(t, err)
 
-	progressFromDb, err := SelectProgress(1, "document-here")
+	progressFromDb, err := repo.SelectByUserIDAndDocument(1, "document-here")
 
 	assert.NoError(t, err)
 
@@ -44,12 +49,13 @@ func TestStoreAndSelectProgress(t *testing.T) {
 }
 
 func TestSelectProgressNotFound(t *testing.T) {
-	db.Init(":memory:")
-	db.CreateTables()
+	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
-	progressFromDb, err := SelectProgress(1, "document-here")
+	repo := NewSyncProgressRepository(db.DBCon)
+
+	progressFromDb, err := repo.SelectByUserIDAndDocument(1, "document-here")
 
 	assert.NoError(t, err)
 	assert.Nil(t, progressFromDb)

@@ -1,20 +1,30 @@
-package dao
+package sync_progress
 
 import (
 	"database/sql"
 	"errors"
-
-	"github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/types"
 )
 
-func SelectProgress(userId int64, document string) (*types.Progress, error) {
-	var progress = types.Progress{}
-	progress.UserID = userId
+type SyncProgressRepository interface {
+	SelectByUserIDAndDocument(userID int64, document string) (*SyncProgress, error)
+	Store(syncProgress SyncProgress) (*int64, error)
+}
+
+type SyncProgressRepositorySQLite struct {
+	db *sql.DB
+}
+
+func NewSyncProgressRepository(db *sql.DB) SyncProgressRepository {
+	return &SyncProgressRepositorySQLite{db: db}
+}
+
+func (r *SyncProgressRepositorySQLite) SelectByUserIDAndDocument(userID int64, document string) (*SyncProgress, error) {
+	var progress = SyncProgress{}
+	progress.UserID = userID
 	progress.Document = document
 
 	query := "SELECT id, progress, percentage, device, device_id, timestamp FROM progress WHERE user_id = ? AND document = ?"
-	err := db.DBCon.QueryRow(query, userId, document).Scan(
+	err := r.db.QueryRow(query, userID, document).Scan(
 		&progress.ID,
 		&progress.Progress,
 		&progress.Percentage,
@@ -34,7 +44,7 @@ func SelectProgress(userId int64, document string) (*types.Progress, error) {
 	return &progress, nil
 }
 
-func StoreProgress(progress types.Progress) (*int64, error) {
+func (r *SyncProgressRepositorySQLite) Store(progress SyncProgress) (*int64, error) {
 	args := []interface{}{
 		sql.Named("user_id", progress.UserID),
 		sql.Named("document", progress.Document),
@@ -45,7 +55,7 @@ func StoreProgress(progress types.Progress) (*int64, error) {
 		sql.Named("timestamp", progress.Timestamp),
 	}
 
-	res, err := db.DBCon.Exec(`
+	res, err := r.db.Exec(`
 		INSERT INTO progress (
 			user_id,
 			document,

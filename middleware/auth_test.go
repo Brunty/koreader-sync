@@ -7,27 +7,32 @@ import (
 	"time"
 
 	"github.com/brunty/koreader-sync-server/crypto"
-	"github.com/brunty/koreader-sync-server/dao"
 	"github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/types"
+	userpackage "github.com/brunty/koreader-sync-server/user"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing.T) {
+func setupInMemoryDb() {
 	db.Init(":memory:")
 	db.CreateTables()
+}
+
+func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing.T) {
+	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
+
+	userRepo := userpackage.NewUserRepository(db.DBCon)
 
 	now := time.Now()
 
 	password, _ := crypto.HashPassword("test-password-here")
-	user := types.User{
+	user := userpackage.User{
 		Username:  "test-username-here",
 		Password:  password,
 		CreatedAt: now,
 	}
-	_, err := dao.StoreUser(user)
+	_, err := userRepo.Store(user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
@@ -35,7 +40,7 @@ func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing
 	req.Header.Add("x-auth-key", "test-password-here")
 
 	rr := httptest.NewRecorder()
-	handler := AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := NewAuthMiddleware(userRepo).Handle(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -45,27 +50,28 @@ func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing
 }
 
 func TestAuthMiddleware_ReturnsUnauthorizedIfUsernameIsBlank(t *testing.T) {
-	db.Init(":memory:")
-	db.CreateTables()
+	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
+
+	userRepo := userpackage.NewUserRepository(db.DBCon)
 
 	now := time.Now()
 
 	password, _ := crypto.HashPassword("test-password-here")
-	user := types.User{
+	user := userpackage.User{
 		Username:  "test-username-here",
 		Password:  password,
 		CreatedAt: now,
 	}
-	_, err := dao.StoreUser(user)
+	_, err := userRepo.Store(user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
 	req.Header.Add("x-auth-key", "test-password-here")
 
 	rr := httptest.NewRecorder()
-	handler := AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := NewAuthMiddleware(userRepo).Handle(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -75,27 +81,28 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUsernameIsBlank(t *testing.T) {
 }
 
 func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsBlank(t *testing.T) {
-	db.Init(":memory:")
-	db.CreateTables()
+	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
+
+	userRepo := userpackage.NewUserRepository(db.DBCon)
 
 	now := time.Now()
 
 	password, _ := crypto.HashPassword("test-password-here")
-	user := types.User{
+	user := userpackage.User{
 		Username:  "test-username-here",
 		Password:  password,
 		CreatedAt: now,
 	}
-	_, err := dao.StoreUser(user)
+	_, err := userRepo.Store(user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
 	req.Header.Add("x-auth-user", "test-username-here")
 
 	rr := httptest.NewRecorder()
-	handler := AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := NewAuthMiddleware(userRepo).Handle(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -105,17 +112,18 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsBlank(t *testing.T) {
 }
 
 func TestAuthMiddleware_ReturnsUnauthorizedIfUserIsNotFound(t *testing.T) {
-	db.Init(":memory:")
-	db.CreateTables()
+	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
+
+	userRepo := userpackage.NewUserRepository(db.DBCon)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
 	req.Header.Add("x-auth-user", "test-username-here")
 	req.Header.Add("x-auth-key", "test-password-here")
 
 	rr := httptest.NewRecorder()
-	handler := AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := NewAuthMiddleware(userRepo).Handle(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
@@ -125,20 +133,21 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUserIsNotFound(t *testing.T) {
 }
 
 func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsIncorrect(t *testing.T) {
-	db.Init(":memory:")
-	db.CreateTables()
+	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
+
+	userRepo := userpackage.NewUserRepository(db.DBCon)
 
 	now := time.Now()
 
 	password, _ := crypto.HashPassword("test-password-here")
-	user := types.User{
+	user := userpackage.User{
 		Username:  "test-username-here",
 		Password:  password,
 		CreatedAt: now,
 	}
-	_, err := dao.StoreUser(user)
+	_, err := userRepo.Store(user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
@@ -146,7 +155,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsIncorrect(t *testing.T) {
 	req.Header.Add("x-auth-key", "incorrect-password")
 
 	rr := httptest.NewRecorder()
-	handler := AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := NewAuthMiddleware(userRepo).Handle(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 

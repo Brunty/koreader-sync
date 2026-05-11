@@ -1,33 +1,38 @@
-package dao
+package user
 
 import (
 	"testing"
 	"time"
 
 	"github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/types"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestStoreAndSelectUser(t *testing.T) {
+func setupInMemoryDb() {
 	db.Init(":memory:")
 	db.CreateTables()
+}
+
+func TestStoreAndSelectUser(t *testing.T) {
+	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
+	repo := NewUserRepository(db.DBCon)
+
 	now := time.Now()
 
-	user := types.User{
+	user := User{
 		Username:  "test-username-here",
 		Password:  "test-password-here",
 		CreatedAt: now,
 	}
 
-	_, err := StoreUser(user)
+	_, err := repo.Store(user)
 
 	assert.NoError(t, err)
 
-	userFromDb, err := SelectUserByUsername("test-username-here")
+	userFromDb, err := repo.SelectByUsername("test-username-here")
 
 	assert.NoError(t, err)
 	assert.Equal(t, user.Username, userFromDb.Username)
@@ -35,12 +40,13 @@ func TestStoreAndSelectUser(t *testing.T) {
 }
 
 func TestSelectUserNotFound(t *testing.T) {
-	db.Init(":memory:")
-	db.CreateTables()
+	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
-	userFromDb, err := SelectUserByUsername("test-username-here")
+	repo := NewUserRepository(db.DBCon)
+
+	userFromDb, err := repo.SelectByUsername("test-username-here")
 
 	assert.NoError(t, err)
 	assert.Nil(t, userFromDb)

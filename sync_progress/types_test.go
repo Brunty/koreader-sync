@@ -1,4 +1,4 @@
-package types
+package sync_progress
 
 import (
 	"testing"
@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSyncProgressRequest_ValidatesFieldsMissing(t *testing.T) {
-	req := &SyncProgressRequest{
+func TestStoreSyncProgressRequest_ValidatesSuccessfully(t *testing.T) {
+	req := &StoreSyncProgressRequest{
 		DeviceID:   "device-id-here",
 		Progress:   "progress-here",
 		Document:   "document-here",
@@ -21,8 +21,8 @@ func TestSyncProgressRequest_ValidatesFieldsMissing(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestSyncProgressRequest_ValidatesSuccessfully(t *testing.T) {
-	req := &SyncProgressRequest{
+func TestStoreSyncProgressRequest_ValidatesFieldsMissing(t *testing.T) {
+	req := &StoreSyncProgressRequest{
 		DeviceID: "",
 		Progress: "",
 		Document: "",
@@ -37,8 +37,8 @@ func TestSyncProgressRequest_ValidatesSuccessfully(t *testing.T) {
 	assert.Error(t, err, "device is required")
 }
 
-func TestSyncProgressRequest_MarshalToProgress(t *testing.T) {
-	req := &SyncProgressRequest{
+func TestStoreSyncProgressRequest_MarshalToSyncProgress(t *testing.T) {
+	req := &StoreSyncProgressRequest{
 		DeviceID:   "device-id-here",
 		Progress:   "progress-here",
 		Document:   "document-here",
@@ -46,7 +46,7 @@ func TestSyncProgressRequest_MarshalToProgress(t *testing.T) {
 		Device:     "device-here",
 	}
 
-	progress, err := req.MarshalToProgress(56)
+	progress, err := req.MarshalToSyncProgress(56)
 
 	assert.NoError(t, err)
 	assert.Equal(t, req.DeviceID, progress.DeviceID)
@@ -56,8 +56,8 @@ func TestSyncProgressRequest_MarshalToProgress(t *testing.T) {
 	assert.Equal(t, req.Device, progress.Device)
 }
 
-func TestProgress_MarshalToResponse(t *testing.T) {
-	progress := &Progress{
+func TestSyncProgress_MarshalToReadResponse(t *testing.T) {
+	progress := &SyncProgress{
 		ID:         1234, // irrelevant to output testing, but here for completeness
 		UserID:     2345, // irrelevant to output testing, but here for completeness
 		Document:   "document-here",
@@ -68,7 +68,7 @@ func TestProgress_MarshalToResponse(t *testing.T) {
 		Timestamp:  time.Date(2026, 05, 10, 20, 34, 58, 651387237, time.UTC),
 	}
 
-	rsp, err := progress.MarshalToResponse()
+	rsp, err := progress.MarshalToReadResponse()
 
 	assert.NoError(t, err)
 	assert.Equal(t, progress.DeviceID, rsp.DeviceID)
@@ -79,11 +79,11 @@ func TestProgress_MarshalToResponse(t *testing.T) {
 	assert.Equal(t, int64(1778445298), rsp.Timestamp)
 }
 
-func TestProgress_MarshalNilToResponse(t *testing.T) {
-	progress := &Progress{}
+func TestSyncProgress_MarshalNilToReadResponse(t *testing.T) {
+	progress := &SyncProgress{}
 	progress = nil
 
-	rsp, err := progress.MarshalToResponse()
+	rsp, err := progress.MarshalToReadResponse()
 
 	assert.NoError(t, err)
 	assert.Equal(t, "", rsp.DeviceID)

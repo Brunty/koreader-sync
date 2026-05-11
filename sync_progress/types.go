@@ -1,11 +1,11 @@
-package types
+package sync_progress
 
 import (
 	"errors"
 	"time"
 )
 
-type Progress struct {
+type SyncProgress struct {
 	ID         int64
 	UserID     int64
 	Document   string
@@ -16,7 +16,7 @@ type Progress struct {
 	Timestamp  time.Time
 }
 
-type SyncProgressRequest struct {
+type StoreSyncProgressRequest struct {
 	DeviceID   string  `json:"device_id"`
 	Progress   string  `json:"progress"`
 	Document   string  `json:"document"`
@@ -24,7 +24,7 @@ type SyncProgressRequest struct {
 	Device     string  `json:"device"`
 }
 
-func (req *SyncProgressRequest) Validate() error {
+func (req *StoreSyncProgressRequest) Validate() error {
 	var err error
 	if req.DeviceID == "" {
 		err = errors.Join(err, errors.New("device_id is required"))
@@ -42,8 +42,8 @@ func (req *SyncProgressRequest) Validate() error {
 	return err
 }
 
-func (req *SyncProgressRequest) MarshalToProgress(userID int64) (Progress, error) {
-	return Progress{
+func (req *StoreSyncProgressRequest) MarshalToSyncProgress(userID int64) (SyncProgress, error) {
+	return SyncProgress{
 		UserID:     userID,
 		Document:   req.Document,
 		Progress:   req.Progress,
@@ -54,12 +54,12 @@ func (req *SyncProgressRequest) MarshalToProgress(userID int64) (Progress, error
 	}, nil
 }
 
-func (progress *Progress) MarshalToResponse() (ProgressResponse, error) {
+func (progress *SyncProgress) MarshalToReadResponse() (ReadSyncProgressResponse, error) {
 	if progress == nil {
-		return ProgressResponse{}, nil
+		return ReadSyncProgressResponse{}, nil
 	}
 
-	return ProgressResponse{
+	return ReadSyncProgressResponse{
 		DeviceID:   progress.DeviceID,
 		Progress:   progress.Progress,
 		Document:   progress.Document,
@@ -69,7 +69,7 @@ func (progress *Progress) MarshalToResponse() (ProgressResponse, error) {
 	}, nil
 }
 
-type ProgressResponse struct {
+type ReadSyncProgressResponse struct {
 	DeviceID   string  `json:"device_id"`
 	Progress   string  `json:"progress"`
 	Document   string  `json:"document"`

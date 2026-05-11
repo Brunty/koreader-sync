@@ -7,11 +7,19 @@ import (
 	"net/http"
 
 	"github.com/brunty/koreader-sync-server/crypto"
-	dao "github.com/brunty/koreader-sync-server/dao"
 	"github.com/brunty/koreader-sync-server/types"
+	userpackage "github.com/brunty/koreader-sync-server/user"
 )
 
-func AuthMiddleware(next http.Handler) http.Handler {
+type AuthMiddleware struct {
+	repo userpackage.UserRepository
+}
+
+func NewAuthMiddleware(repo userpackage.UserRepository) *AuthMiddleware {
+	return &AuthMiddleware{repo: repo}
+}
+
+func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		slog.Debug("Auth middleware invoked")
 
@@ -27,7 +35,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		user, err := dao.SelectUserByUsername(username)
+		user, err := m.repo.SelectByUsername(username)
 		if user == nil || err != nil {
 			slog.Debug("Auth middleware fail, user not found")
 			w.Header().Set("Content-Type", "application/json")

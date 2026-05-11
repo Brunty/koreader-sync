@@ -1,4 +1,4 @@
-package handlers
+package user
 
 import (
 	"encoding/json"
@@ -8,18 +8,48 @@ import (
 	"testing"
 
 	"github.com/brunty/koreader-sync-server/crypto"
-	"github.com/brunty/koreader-sync-server/dao"
 	"github.com/brunty/koreader-sync-server/db"
 	"github.com/brunty/koreader-sync-server/types"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateUser_Successfully(t *testing.T) {
-	db.Init(":memory:")
-	db.CreateTables()
+func TestAuthUser(t *testing.T) {
+	setupInMemoryDb()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
-	reqBody := &types.CreateUserRequest{
+	userRepo := NewUserRepository(db.DBCon)
+
+	userHandler := NewUserHandler(userRepo)
+
+	// So, this test is basic because the auth user endpoint doesn't actually really do anything
+	// It's protected by middleware.AuthMiddleware it doesn't actually need to do anything except return a
+	// success message because if it's passed the middleware, it is authorized
+	req, _ := http.NewRequest("GET", "/users/auth", nil)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(userHandler.AuthUser)
+
+	handler.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusOK, rr.Code)
+
+	expectedRsp := &types.StatusResponse{Status: "authorized"}
+	actualRsp := &types.StatusResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
+}
+
+func TestCreateUser_Successfully(t *testing.T) {
+	setupInMemoryDb()
+	defer db.EmptyTables()
+	defer db.DBCon.Close()
+
+	userRepo := NewUserRepository(db.DBCon)
+
+	userHandler := NewUserHandler(userRepo)
+
+	reqBody := &CreateUserRequest{
 		Username: "username-here",
 		Password: "password-here",
 	}
@@ -29,11 +59,11 @@ func TestCreateUser_Successfully(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/users/create", body)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(CreateUser)
+	handler := http.HandlerFunc(userHandler.CreateUser)
 
 	handler.ServeHTTP(rr, req)
 
-	user, err := dao.SelectUserByUsername("username-here")
+	user, err := userRepo.SelectByUsername("username-here")
 
 	// Check the user was created
 	assert.NoError(t, err)
@@ -49,11 +79,15 @@ func TestCreateUser_Successfully(t *testing.T) {
 }
 
 func TestCreateUser_FailsBlankUserDetails(t *testing.T) {
-	db.Init(":memory:")
-	db.CreateTables()
+	setupInMemoryDb()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
-	reqBody := &types.CreateUserRequest{
+	userRepo := NewUserRepository(db.DBCon)
+
+	userHandler := NewUserHandler(userRepo)
+
+	reqBody := &CreateUserRequest{
 		Username: "",
 		Password: "",
 	}
@@ -63,7 +97,7 @@ func TestCreateUser_FailsBlankUserDetails(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/users/create", body)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(CreateUser)
+	handler := http.HandlerFunc(userHandler.CreateUser)
 
 	handler.ServeHTTP(rr, req)
 
@@ -76,21 +110,25 @@ func TestCreateUser_FailsBlankUserDetails(t *testing.T) {
 }
 
 func TestCreateUser_FailsDuplicateUser(t *testing.T) {
-	db.Init(":memory:")
-	db.CreateTables()
+	setupInMemoryDb()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
+	userRepo := NewUserRepository(db.DBCon)
+
+	userHandler := NewUserHandler(userRepo)
+
 	password, _ := crypto.HashPassword("original-password-here")
-	user := types.User{
+	user := User{
 		Username: "username-here",
 		Password: password,
 	}
 
-	_, err := dao.StoreUser(user)
+	_, err := userRepo.Store(user)
 
 	assert.NoError(t, err)
 
-	reqBody := &types.CreateUserRequest{
+	reqBody := &CreateUserRequest{
 		Username: "username-here",
 		Password: "new-password-here",
 	}
@@ -100,11 +138,11 @@ func TestCreateUser_FailsDuplicateUser(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/users/create", body)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(CreateUser)
+	handler := http.HandlerFunc(userHandler.CreateUser)
 
 	handler.ServeHTTP(rr, req)
 
-	userFromDb, err := dao.SelectUserByUsername("username-here")
+	userFromDb, err := userRepo.SelectByUsername("username-here")
 
 	// Check the original user in the DB wasn't touched
 	assert.NoError(t, err)
