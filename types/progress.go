@@ -55,6 +55,10 @@ func (req *SyncProgressRequest) MarshalToProgress(userID int64) (Progress, error
 }
 
 func (progress *Progress) MarshalToResponse() (ProgressResponse, error) {
+	if progress == nil {
+		return ProgressResponse{}, nil
+	}
+
 	return ProgressResponse{
 		DeviceID:   progress.DeviceID,
 		Progress:   progress.Progress,

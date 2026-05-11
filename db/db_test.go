@@ -19,6 +19,7 @@ func TestInit_Successfully(t *testing.T) {
 func TestCreateTables_Successfully(t *testing.T) {
 	err := Init(":memory:")
 	assert.NoError(t, err)
+	defer EmptyTables()
 
 	CreateTables()
 

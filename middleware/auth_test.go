@@ -16,6 +16,7 @@ import (
 func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing.T) {
 	db.Init(":memory:")
 	db.CreateTables()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
 	now := time.Now()
@@ -46,6 +47,7 @@ func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing
 func TestAuthMiddleware_ReturnsUnauthorizedIfUsernameIsBlank(t *testing.T) {
 	db.Init(":memory:")
 	db.CreateTables()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
 	now := time.Now()
@@ -75,6 +77,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUsernameIsBlank(t *testing.T) {
 func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsBlank(t *testing.T) {
 	db.Init(":memory:")
 	db.CreateTables()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
 	now := time.Now()
@@ -104,6 +107,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsBlank(t *testing.T) {
 func TestAuthMiddleware_ReturnsUnauthorizedIfUserIsNotFound(t *testing.T) {
 	db.Init(":memory:")
 	db.CreateTables()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
@@ -123,6 +127,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUserIsNotFound(t *testing.T) {
 func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsIncorrect(t *testing.T) {
 	db.Init(":memory:")
 	db.CreateTables()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
 	now := time.Now()

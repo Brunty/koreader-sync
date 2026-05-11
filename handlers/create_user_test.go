@@ -26,7 +26,7 @@ func TestCreateUser_Successfully(t *testing.T) {
 
 	jsonBody, _ := json.Marshal(reqBody)
 	body := strings.NewReader(string(jsonBody))
-	req, _ := http.NewRequest("GET", "/users/create", body)
+	req, _ := http.NewRequest("POST", "/users/create", body)
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(CreateUser)
@@ -60,7 +60,7 @@ func TestCreateUser_FailsBlankUserDetails(t *testing.T) {
 
 	jsonBody, _ := json.Marshal(reqBody)
 	body := strings.NewReader(string(jsonBody))
-	req, _ := http.NewRequest("GET", "/users/create", body)
+	req, _ := http.NewRequest("POST", "/users/create", body)
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(CreateUser)
@@ -97,7 +97,7 @@ func TestCreateUser_FailsDuplicateUser(t *testing.T) {
 
 	jsonBody, _ := json.Marshal(reqBody)
 	body := strings.NewReader(string(jsonBody))
-	req, _ := http.NewRequest("GET", "/users/create", body)
+	req, _ := http.NewRequest("POST", "/users/create", body)
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(CreateUser)

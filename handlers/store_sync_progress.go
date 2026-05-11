@@ -34,8 +34,7 @@ func StoreSyncProgress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// try finding an entry by user ID and document, if so, update it, if not, create it
-	err = dao.StoreProgress(progress)
+	_, err = dao.StoreProgress(progress)
 	if err != nil {
 		slog.Error("store progress error", slog.Any("error", err))
 		writeErrorResponse(w, http.StatusInternalServerError, "something went wrong")

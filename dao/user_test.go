@@ -12,6 +12,7 @@ import (
 func TestStoreAndSelectUser(t *testing.T) {
 	db.Init(":memory:")
 	db.CreateTables()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
 	now := time.Now()
@@ -36,6 +37,7 @@ func TestStoreAndSelectUser(t *testing.T) {
 func TestSelectUserNotFound(t *testing.T) {
 	db.Init(":memory:")
 	db.CreateTables()
+	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
 	userFromDb, err := SelectUserByUsername("test-username-here")

@@ -44,3 +44,7 @@ func CreateTables() {
 		)
 	`)
 }
+func EmptyTables() {
+	DBCon.Exec("DELETE FROM users")
+	DBCon.Exec("DELETE FROM progress")
+}

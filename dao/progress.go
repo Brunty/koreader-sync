@@ -34,7 +34,7 @@ func SelectProgress(userId int64, document string) (*types.Progress, error) {
 	return &progress, nil
 }
 
-func StoreProgress(progress types.Progress) error {
+func StoreProgress(progress types.Progress) (*int64, error) {
 	args := []interface{}{
 		sql.Named("user_id", progress.UserID),
 		sql.Named("document", progress.Document),
@@ -45,7 +45,7 @@ func StoreProgress(progress types.Progress) error {
 		sql.Named("timestamp", progress.Timestamp),
 	}
 
-	_, err := db.DBCon.Exec(`
+	res, err := db.DBCon.Exec(`
 		INSERT INTO progress (
 			user_id,
 			document,
@@ -73,8 +73,10 @@ func StoreProgress(progress types.Progress) error {
 		args...,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	id, _ := res.LastInsertId()
+
+	return &id, nil
 }

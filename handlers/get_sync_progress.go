@@ -25,6 +25,12 @@ func GetSyncProgress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if progress == nil {
+		slog.Debug("progress not found")
+		writeErrorResponse(w, http.StatusNotFound, "not found")
+		return
+	}
+
 	response, err := progress.MarshalToResponse()
 	if err != nil {
 		slog.Debug("get sync progress marshaling error", slog.Any("error", err))
