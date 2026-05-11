@@ -11,7 +11,7 @@ import (
 
 	"github.com/brunty/koreader-sync-server/crypto"
 	"github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/types"
+	"github.com/brunty/koreader-sync-server/handlers"
 	userpackage "github.com/brunty/koreader-sync-server/user"
 	"github.com/stretchr/testify/assert"
 )
@@ -222,8 +222,8 @@ func TestStoreSyncProgress_SuccessfulUpdateProgress(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 
-	expectedRsp := &types.StatusResponse{Status: "sync stored"}
-	actualRsp := &types.StatusResponse{}
+	expectedRsp := &handlers.StatusResponse{Status: "sync stored"}
+	actualRsp := &handlers.StatusResponse{}
 	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 

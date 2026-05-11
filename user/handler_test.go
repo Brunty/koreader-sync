@@ -9,7 +9,7 @@ import (
 
 	"github.com/brunty/koreader-sync-server/crypto"
 	"github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/types"
+	"github.com/brunty/koreader-sync-server/handlers"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,8 +34,8 @@ func TestAuthUser(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 
-	expectedRsp := &types.StatusResponse{Status: "authorized"}
-	actualRsp := &types.StatusResponse{}
+	expectedRsp := &handlers.StatusResponse{Status: "authorized"}
+	actualRsp := &handlers.StatusResponse{}
 	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
@@ -72,8 +72,8 @@ func TestCreateUser_Successfully(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, rr.Code)
 
-	expectedRsp := &types.StatusResponse{Status: "user created"}
-	actualRsp := &types.StatusResponse{}
+	expectedRsp := &handlers.StatusResponse{Status: "user created"}
+	actualRsp := &handlers.StatusResponse{}
 	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
@@ -103,8 +103,8 @@ func TestCreateUser_FailsBlankUserDetails(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 
-	expectedRsp := &types.ErrorResponse{Error: "username is required\npassword is required"}
-	actualRsp := &types.ErrorResponse{}
+	expectedRsp := &handlers.ErrorResponse{Error: "username is required\npassword is required"}
+	actualRsp := &handlers.ErrorResponse{}
 	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
@@ -151,8 +151,8 @@ func TestCreateUser_FailsDuplicateUser(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 
-	expectedRsp := &types.ErrorResponse{Error: "username is already taken"}
-	actualRsp := &types.ErrorResponse{}
+	expectedRsp := &handlers.ErrorResponse{Error: "username is already taken"}
+	actualRsp := &handlers.ErrorResponse{}
 	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }

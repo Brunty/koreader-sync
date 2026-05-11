@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/brunty/koreader-sync-server/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,8 +19,8 @@ func TestHome(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 
-	expectedRsp := &types.StatusResponse{Status: "This is a server compatible with the KOReader Sync Protocol"}
-	actualRsp := &types.StatusResponse{}
+	expectedRsp := &StatusResponse{Status: "This is a server compatible with the KOReader Sync Protocol"}
+	actualRsp := &StatusResponse{}
 	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }

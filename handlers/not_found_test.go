@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/brunty/koreader-sync-server/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,8 +19,8 @@ func TestNotFound(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, rr.Code)
 
-	expectedRsp := &types.ErrorResponse{Error: "not found"}
-	actualRsp := &types.ErrorResponse{}
+	expectedRsp := &ErrorResponse{Error: "not found"}
+	actualRsp := &ErrorResponse{}
 	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
