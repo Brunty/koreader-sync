@@ -5,7 +5,6 @@ import (
 
 	database "github.com/brunty/koreader-sync-server/db"
 	"github.com/brunty/koreader-sync-server/handlers"
-	"github.com/brunty/koreader-sync-server/middleware"
 	"github.com/brunty/koreader-sync-server/sync_progress"
 	userpackage "github.com/brunty/koreader-sync-server/user"
 )
@@ -22,7 +21,7 @@ func (mux ServeMux) RegisterRoutes() ServeMux {
 	mux.Handle("GET /{$}", http.HandlerFunc(handlers.Home))
 
 	userRepo := userpackage.NewUserRepository(db)
-	authMiddleware := middleware.NewAuthMiddleware(userRepo)
+	authMiddleware := userpackage.NewAuthMiddleware(userRepo)
 	userHandler := userpackage.NewUserHandler(userRepo)
 	syncHandler := sync_progress.NewSyncProgressHandler(sync_progress.NewSyncProgressRepository(db))
 

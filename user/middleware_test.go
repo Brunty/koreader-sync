@@ -1,4 +1,4 @@
-package middleware
+package user
 
 import (
 	"net/http"
@@ -8,26 +8,20 @@ import (
 
 	"github.com/brunty/koreader-sync-server/crypto"
 	"github.com/brunty/koreader-sync-server/db"
-	userpackage "github.com/brunty/koreader-sync-server/user"
 	"github.com/stretchr/testify/assert"
 )
-
-func setupInMemoryDb() {
-	db.Init(":memory:")
-	db.CreateTables()
-}
 
 func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing.T) {
 	setupInMemoryDb()
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
-	userRepo := userpackage.NewUserRepository(db.DBCon)
+	userRepo := NewUserRepository(db.DBCon)
 
 	now := time.Now()
 
 	password, _ := crypto.HashPassword("test-password-here")
-	user := userpackage.User{
+	user := User{
 		Username:  "test-username-here",
 		Password:  password,
 		CreatedAt: now,
@@ -54,12 +48,12 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUsernameIsBlank(t *testing.T) {
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
-	userRepo := userpackage.NewUserRepository(db.DBCon)
+	userRepo := NewUserRepository(db.DBCon)
 
 	now := time.Now()
 
 	password, _ := crypto.HashPassword("test-password-here")
-	user := userpackage.User{
+	user := User{
 		Username:  "test-username-here",
 		Password:  password,
 		CreatedAt: now,
@@ -85,12 +79,12 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsBlank(t *testing.T) {
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
-	userRepo := userpackage.NewUserRepository(db.DBCon)
+	userRepo := NewUserRepository(db.DBCon)
 
 	now := time.Now()
 
 	password, _ := crypto.HashPassword("test-password-here")
-	user := userpackage.User{
+	user := User{
 		Username:  "test-username-here",
 		Password:  password,
 		CreatedAt: now,
@@ -116,7 +110,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUserIsNotFound(t *testing.T) {
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
-	userRepo := userpackage.NewUserRepository(db.DBCon)
+	userRepo := NewUserRepository(db.DBCon)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
 	req.Header.Add("x-auth-user", "test-username-here")
@@ -137,12 +131,12 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsIncorrect(t *testing.T) {
 	defer db.EmptyTables()
 	defer db.DBCon.Close()
 
-	userRepo := userpackage.NewUserRepository(db.DBCon)
+	userRepo := NewUserRepository(db.DBCon)
 
 	now := time.Now()
 
 	password, _ := crypto.HashPassword("test-password-here")
-	user := userpackage.User{
+	user := User{
 		Username:  "test-username-here",
 		Password:  password,
 		CreatedAt: now,

@@ -1,4 +1,4 @@
-package middleware
+package user
 
 import (
 	"context"
@@ -8,14 +8,13 @@ import (
 
 	"github.com/brunty/koreader-sync-server/crypto"
 	"github.com/brunty/koreader-sync-server/handlers"
-	userpackage "github.com/brunty/koreader-sync-server/user"
 )
 
 type AuthMiddleware struct {
-	repo userpackage.UserRepository
+	repo UserRepository
 }
 
-func NewAuthMiddleware(repo userpackage.UserRepository) *AuthMiddleware {
+func NewAuthMiddleware(repo UserRepository) *AuthMiddleware {
 	return &AuthMiddleware{repo: repo}
 }
 
