@@ -9,7 +9,11 @@ import (
 var DBCon *sql.DB
 
 func Init(dbFile string) error {
-	db, err := sql.Open("sqlite", dbFile)
+	return initWithDriver("sqlite", dbFile)
+}
+
+func initWithDriver(driver, dbFile string) error {
+	db, err := sql.Open(driver, dbFile)
 	if err != nil {
 		return err
 	}
