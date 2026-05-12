@@ -3,6 +3,7 @@ package sync_progress
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -15,6 +16,19 @@ import (
 	userpackage "github.com/brunty/koreader-sync-server/user"
 	"github.com/stretchr/testify/assert"
 )
+
+type mockSyncProgressRepo struct {
+	selectByUserIDAndDocumentFn func(ctx context.Context, userID int64, document string) (*SyncProgress, error)
+	storeFn                     func(ctx context.Context, syncProgress SyncProgress) (*int64, error)
+}
+
+func (m *mockSyncProgressRepo) SelectByUserIDAndDocument(ctx context.Context, userID int64, document string) (*SyncProgress, error) {
+	return m.selectByUserIDAndDocumentFn(ctx, userID, document)
+}
+
+func (m *mockSyncProgressRepo) Store(ctx context.Context, syncProgress SyncProgress) (*int64, error) {
+	return m.storeFn(ctx, syncProgress)
+}
 
 func TestReadSyncProgress_Successfully(t *testing.T) {
 	setupInMemoryDb()
@@ -232,4 +246,102 @@ func TestStoreSyncProgress_SuccessfulUpdateProgress(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, reqBody.Percentage, progressFromDB.Percentage)
 	assert.Equal(t, reqBody.Progress, progressFromDB.Progress)
+}
+
+func TestStoreSyncProgress_BadRequestBody(t *testing.T) {
+	handler := NewSyncProgressHandler(nil)
+
+	body := strings.NewReader("not valid json")
+	req, _ := http.NewRequest("PUT", "/syncs/progress", body)
+	req = req.WithContext(context.WithValue(req.Context(), "user", int64(1)))
+
+	rr := httptest.NewRecorder()
+	handler.StoreSyncProgress(rr, req)
+
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+
+	expectedRsp := &handlers.ErrorResponse{Error: "bad body content"}
+	actualRsp := &handlers.ErrorResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
+}
+
+func TestStoreSyncProgress_ValidationError(t *testing.T) {
+	handler := NewSyncProgressHandler(nil)
+
+	reqBody := &StoreSyncProgressRequest{
+		DeviceID:   "",
+		Progress:   "",
+		Document:   "",
+		Percentage: 0,
+		Device:     "",
+	}
+	jsonBody, _ := json.Marshal(reqBody)
+	body := strings.NewReader(string(jsonBody))
+	req, _ := http.NewRequest("PUT", "/syncs/progress", body)
+	req = req.WithContext(context.WithValue(req.Context(), "user", int64(1)))
+
+	rr := httptest.NewRecorder()
+	handler.StoreSyncProgress(rr, req)
+
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+
+	expectedRsp := &handlers.ErrorResponse{Error: "device_id is required\nprogress is required\ndocument is required\ndevice is required"}
+	actualRsp := &handlers.ErrorResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
+}
+
+func TestStoreSyncProgress_RepoStoreError(t *testing.T) {
+	repo := &mockSyncProgressRepo{
+		storeFn: func(ctx context.Context, sp SyncProgress) (*int64, error) {
+			return nil, errors.New("db error")
+		},
+	}
+	handler := NewSyncProgressHandler(repo)
+
+	reqBody := &StoreSyncProgressRequest{
+		DeviceID:   "device-id-here",
+		Progress:   "progress-here",
+		Document:   "document-here",
+		Percentage: 0.5,
+		Device:     "device-here",
+	}
+	jsonBody, _ := json.Marshal(reqBody)
+	body := strings.NewReader(string(jsonBody))
+	req, _ := http.NewRequest("PUT", "/syncs/progress", body)
+	req = req.WithContext(context.WithValue(req.Context(), "user", int64(1)))
+
+	rr := httptest.NewRecorder()
+	handler.StoreSyncProgress(rr, req)
+
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
+
+	expectedRsp := &handlers.ErrorResponse{Error: "something went wrong"}
+	actualRsp := &handlers.ErrorResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
+}
+
+func TestReadSyncProgress_RepoSelectError(t *testing.T) {
+	repo := &mockSyncProgressRepo{
+		selectByUserIDAndDocumentFn: func(ctx context.Context, userID int64, document string) (*SyncProgress, error) {
+			return nil, errors.New("db error")
+		},
+	}
+	handler := NewSyncProgressHandler(repo)
+
+	req, _ := http.NewRequest("GET", "/syncs/progress/document-here", nil)
+	req.SetPathValue("document", "document-here")
+	req = req.WithContext(context.WithValue(req.Context(), "user", int64(1)))
+
+	rr := httptest.NewRecorder()
+	handler.ReadSyncProgress(rr, req)
+
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
+
+	expectedRsp := &handlers.ErrorResponse{Error: "something went wrong"}
+	actualRsp := &handlers.ErrorResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
 }
