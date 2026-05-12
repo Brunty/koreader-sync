@@ -1,6 +1,7 @@
 package crypto
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,6 +13,13 @@ func TestPasswordHashing(t *testing.T) {
 
 	assert.NoErrorf(t, err, "Should have no error from hashing the crypto")
 	assert.True(t, BcryptCheckPasswordHash(password, hashedPassword))
+}
+
+func TestPasswordHashingErrorsOnStringTooLong(t *testing.T) {
+	password := strings.Repeat("a", 100)
+	_, err := BcryptHashPassword(password)
+
+	assert.Error(t, err, "Should have errored with a string too long")
 }
 
 func TestBcryptNeedsRehash(t *testing.T) {

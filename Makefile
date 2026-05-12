@@ -9,4 +9,5 @@ run: ## Runs the build, then runs the Docker container on port :8080
 	$(MAKE) build
 	docker run -e LOG_LEVEL=DEBUG -p 8080:8080 -v ./data:/app/data koreader-sync
 test: ## Runs the tests for the application
-	go test ./...
+	go test ./... -coverprofile testcoverage.txt
+	go tool cover -html testcoverage.txt -o testcoverage.html
