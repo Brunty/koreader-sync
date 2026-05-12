@@ -1,6 +1,7 @@
 package user
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/brunty/koreader-sync-server/crypto"
@@ -41,4 +42,19 @@ func TestCreateUserRequest_MarshalToUser(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, req.Username, user.Username)
 	assert.True(t, crypto.BcryptCheckPasswordHash(req.Password, user.Password))
+}
+
+func TestCreateUserRequest_MarshalToUser_HashError(t *testing.T) {
+	password := strings.Repeat("a", 73)
+
+	req := &CreateUserRequest{
+		Username: "username",
+		Password: string(password),
+	}
+
+	user, err := req.MarshalToUser()
+
+	assert.Error(t, err)
+	assert.Empty(t, user.Username)
+	assert.Empty(t, user.Password)
 }

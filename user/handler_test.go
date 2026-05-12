@@ -156,3 +156,27 @@ func TestCreateUser_FailsDuplicateUser(t *testing.T) {
 	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
+
+func TestCreateUser_FailsMarshalingError(t *testing.T) {
+	userHandler := NewUserHandler(nil)
+
+	reqBody := &CreateUserRequest{
+		Username: "username-here",
+		Password: strings.Repeat("a", 73),
+	}
+	jsonBody, _ := json.Marshal(reqBody)
+	body := strings.NewReader(string(jsonBody))
+	req, _ := http.NewRequest("POST", "/users/create", body)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(userHandler.CreateUser)
+
+	handler.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
+
+	expectedRsp := &handlers.ErrorResponse{Error: "something went wrong"}
+	actualRsp := &handlers.ErrorResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
+}
