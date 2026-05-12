@@ -42,7 +42,7 @@ func (req *StoreSyncProgressRequest) Validate() error {
 	return err
 }
 
-func (req *StoreSyncProgressRequest) MarshalToSyncProgress(userID int64) (SyncProgress, error) {
+func (req *StoreSyncProgressRequest) MarshalToSyncProgress(userID int64) SyncProgress {
 	return SyncProgress{
 		UserID:     userID,
 		Document:   req.Document,
@@ -51,14 +51,10 @@ func (req *StoreSyncProgressRequest) MarshalToSyncProgress(userID int64) (SyncPr
 		Device:     req.Device,
 		DeviceID:   req.DeviceID,
 		Timestamp:  time.Now(),
-	}, nil
+	}
 }
 
-func (progress *SyncProgress) MarshalToReadResponse() (ReadSyncProgressResponse, error) {
-	if progress == nil {
-		return ReadSyncProgressResponse{}, nil
-	}
-
+func (progress SyncProgress) MarshalToReadResponse() ReadSyncProgressResponse {
 	return ReadSyncProgressResponse{
 		DeviceID:   progress.DeviceID,
 		Progress:   progress.Progress,
@@ -66,7 +62,7 @@ func (progress *SyncProgress) MarshalToReadResponse() (ReadSyncProgressResponse,
 		Percentage: progress.Percentage,
 		Device:     progress.Device,
 		Timestamp:  progress.Timestamp.Unix(),
-	}, nil
+	}
 }
 
 type ReadSyncProgressResponse struct {

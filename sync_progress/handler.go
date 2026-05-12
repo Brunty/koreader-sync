@@ -39,14 +39,7 @@ func (h *SyncProgressHandler) ReadSyncProgress(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	response, err := progress.MarshalToReadResponse()
-	if err != nil {
-		slog.Debug("get sync progress marshaling error", slog.Any("error", err))
-		handlers.WriteErrorResponse(w, http.StatusInternalServerError, "something went wrong")
-		return
-	}
-
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(progress.MarshalToReadResponse())
 }
 
 func (h *SyncProgressHandler) StoreSyncProgress(w http.ResponseWriter, r *http.Request) {
@@ -67,12 +60,7 @@ func (h *SyncProgressHandler) StoreSyncProgress(w http.ResponseWriter, r *http.R
 	}
 
 	userId := r.Context().Value("user").(int64)
-	progress, err := req.MarshalToSyncProgress(userId)
-	if err != nil {
-		slog.Debug("store sync marshaling failed", slog.Any("error", err))
-		handlers.WriteErrorResponse(w, http.StatusInternalServerError, "something went wrong")
-		return
-	}
+	progress := req.MarshalToSyncProgress(userId)
 
 	_, err = h.repo.Store(r.Context(), progress)
 	if err != nil {
