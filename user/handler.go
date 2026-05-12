@@ -45,7 +45,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.repo.Store(user)
+	_, err = h.repo.Store(r.Context(), user)
 	if err != nil {
 		slog.Error("store user error", slog.Any("error", err))
 

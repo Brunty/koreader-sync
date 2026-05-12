@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	cryptomd5 "crypto/md5"
 	"encoding/hex"
 	"flag"
@@ -17,6 +18,8 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	err := database.Init("./data/data.db.sqlite3")
 	if err != nil {
 		slog.Error("database init error", slog.Any("error", err))
@@ -40,7 +43,7 @@ func main() {
 		changePwCmd.Parse(os.Args[2:])
 
 		fmt.Println("Looking for user: " + *username)
-		user, _ := userRepo.SelectByUsername(*username)
+		user, _ := userRepo.SelectByUsername(ctx, *username)
 
 		if user == nil {
 			fmt.Println("User not found")
@@ -71,7 +74,7 @@ func main() {
 
 		user.Password = hashedPw
 
-		_, err = userRepo.Update(*user)
+		_, err = userRepo.Update(ctx, *user)
 
 		if err != nil {
 			fmt.Println("Error storing user")

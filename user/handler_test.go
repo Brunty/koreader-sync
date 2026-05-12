@@ -63,7 +63,7 @@ func TestCreateUser_Successfully(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
-	user, err := userRepo.SelectByUsername("username-here")
+	user, err := userRepo.SelectByUsername(t.Context(), "username-here")
 
 	// Check the user was created
 	assert.NoError(t, err)
@@ -124,7 +124,7 @@ func TestCreateUser_FailsDuplicateUser(t *testing.T) {
 		Password: password,
 	}
 
-	_, err := userRepo.Store(user)
+	_, err := userRepo.Store(t.Context(), user)
 
 	assert.NoError(t, err)
 
@@ -142,7 +142,7 @@ func TestCreateUser_FailsDuplicateUser(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
-	userFromDb, err := userRepo.SelectByUsername("username-here")
+	userFromDb, err := userRepo.SelectByUsername(t.Context(), "username-here")
 
 	// Check the original user in the DB wasn't touched
 	assert.NoError(t, err)

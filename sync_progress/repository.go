@@ -1,13 +1,14 @@
 package sync_progress
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 )
 
 type SyncProgressRepository interface {
-	SelectByUserIDAndDocument(userID int64, document string) (*SyncProgress, error)
-	Store(syncProgress SyncProgress) (*int64, error)
+	SelectByUserIDAndDocument(ctx context.Context, userID int64, document string) (*SyncProgress, error)
+	Store(ctx context.Context, syncProgress SyncProgress) (*int64, error)
 }
 
 type SyncProgressRepositorySQLite struct {
@@ -18,13 +19,13 @@ func NewSyncProgressRepository(db *sql.DB) SyncProgressRepository {
 	return &SyncProgressRepositorySQLite{db: db}
 }
 
-func (r *SyncProgressRepositorySQLite) SelectByUserIDAndDocument(userID int64, document string) (*SyncProgress, error) {
+func (r *SyncProgressRepositorySQLite) SelectByUserIDAndDocument(ctx context.Context, userID int64, document string) (*SyncProgress, error) {
 	var progress = SyncProgress{}
 	progress.UserID = userID
 	progress.Document = document
 
 	query := "SELECT id, progress, percentage, device, device_id, timestamp FROM progress WHERE user_id = ? AND document = ?"
-	err := r.db.QueryRow(query, userID, document).Scan(
+	err := r.db.QueryRowContext(ctx, query, userID, document).Scan(
 		&progress.ID,
 		&progress.Progress,
 		&progress.Percentage,
@@ -34,7 +35,7 @@ func (r *SyncProgressRepositorySQLite) SelectByUserIDAndDocument(userID int64, d
 	)
 
 	if err != nil {
-		// if there's no rows, that's fine, just return nil nil
+		// if there are no rows, that's fine, just return nil, nil
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -44,7 +45,7 @@ func (r *SyncProgressRepositorySQLite) SelectByUserIDAndDocument(userID int64, d
 	return &progress, nil
 }
 
-func (r *SyncProgressRepositorySQLite) Store(progress SyncProgress) (*int64, error) {
+func (r *SyncProgressRepositorySQLite) Store(ctx context.Context, progress SyncProgress) (*int64, error) {
 	args := []interface{}{
 		sql.Named("user_id", progress.UserID),
 		sql.Named("document", progress.Document),
@@ -55,7 +56,7 @@ func (r *SyncProgressRepositorySQLite) Store(progress SyncProgress) (*int64, err
 		sql.Named("timestamp", progress.Timestamp),
 	}
 
-	res, err := r.db.Exec(`
+	res, err := r.db.ExecContext(ctx, `
 		INSERT INTO progress (
 			user_id,
 			document,

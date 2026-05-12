@@ -32,11 +32,11 @@ func TestStoreAndSelectProgress(t *testing.T) {
 		Timestamp:  now,
 	}
 
-	_, err := repo.Store(progress)
+	_, err := repo.Store(t.Context(), progress)
 
 	assert.NoError(t, err)
 
-	progressFromDb, err := repo.SelectByUserIDAndDocument(1, "document-here")
+	progressFromDb, err := repo.SelectByUserIDAndDocument(t.Context(), 1, "document-here")
 
 	assert.NoError(t, err)
 
@@ -55,7 +55,7 @@ func TestSelectProgressNotFound(t *testing.T) {
 
 	repo := NewSyncProgressRepository(db.DBCon)
 
-	progressFromDb, err := repo.SelectByUserIDAndDocument(1, "document-here")
+	progressFromDb, err := repo.SelectByUserIDAndDocument(t.Context(), 1, "document-here")
 
 	assert.NoError(t, err)
 	assert.Nil(t, progressFromDb)

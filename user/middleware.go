@@ -34,7 +34,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 			return
 		}
 
-		user, err := m.repo.SelectByUsername(username)
+		user, err := m.repo.SelectByUsername(r.Context(), username)
 		if user == nil || err != nil {
 			slog.Debug("Auth middleware fail, user not found")
 			w.Header().Set("Content-Type", "application/json")

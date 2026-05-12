@@ -25,7 +25,7 @@ func (h *SyncProgressHandler) ReadSyncProgress(w http.ResponseWriter, r *http.Re
 	}
 
 	userId := r.Context().Value("user").(int64)
-	progress, err := h.repo.SelectByUserIDAndDocument(userId, document)
+	progress, err := h.repo.SelectByUserIDAndDocument(r.Context(), userId, document)
 
 	if err != nil {
 		slog.Debug("get sync progress error", slog.Any("error", err))
@@ -74,7 +74,7 @@ func (h *SyncProgressHandler) StoreSyncProgress(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	_, err = h.repo.Store(progress)
+	_, err = h.repo.Store(r.Context(), progress)
 	if err != nil {
 		slog.Error("store progress error", slog.Any("error", err))
 		handlers.WriteErrorResponse(w, http.StatusInternalServerError, "something went wrong")

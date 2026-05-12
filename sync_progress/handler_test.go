@@ -33,7 +33,7 @@ func TestReadSyncProgress_Successfully(t *testing.T) {
 		Password:  password,
 		CreatedAt: now,
 	}
-	userID, err := userRepo.Store(user)
+	userID, err := userRepo.Store(t.Context(), user)
 	assert.NoError(t, err)
 
 	progress := SyncProgress{
@@ -46,7 +46,7 @@ func TestReadSyncProgress_Successfully(t *testing.T) {
 		Timestamp:  now,
 	}
 
-	_, err = syncProgressRepo.Store(progress)
+	_, err = syncProgressRepo.Store(t.Context(), progress)
 
 	assert.NoError(t, err)
 
@@ -93,7 +93,7 @@ func TestReadSyncProgress_SyncNotFoundInDB(t *testing.T) {
 		Password:  password,
 		CreatedAt: now,
 	}
-	userID, err := userRepo.Store(user)
+	userID, err := userRepo.Store(t.Context(), user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/syncs/progress/document-here", nil)
@@ -139,7 +139,7 @@ func TestGetSyncProgress_SyncNotFoundNoURLParam(t *testing.T) {
 		Password:  password,
 		CreatedAt: now,
 	}
-	userID, err := userRepo.Store(user)
+	userID, err := userRepo.Store(t.Context(), user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/syncs/progress/document-here", nil)
@@ -184,7 +184,7 @@ func TestStoreSyncProgress_SuccessfulUpdateProgress(t *testing.T) {
 		Password:  password,
 		CreatedAt: now,
 	}
-	userID, err := userRepo.Store(user)
+	userID, err := userRepo.Store(t.Context(), user)
 	assert.NoError(t, err)
 
 	progress := SyncProgress{
@@ -197,7 +197,7 @@ func TestStoreSyncProgress_SuccessfulUpdateProgress(t *testing.T) {
 		Timestamp:  now,
 	}
 
-	_, err = syncProgressRepo.Store(progress)
+	_, err = syncProgressRepo.Store(t.Context(), progress)
 
 	assert.NoError(t, err)
 
@@ -227,7 +227,7 @@ func TestStoreSyncProgress_SuccessfulUpdateProgress(t *testing.T) {
 	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 
-	progressFromDB, err := syncProgressRepo.SelectByUserIDAndDocument(*userID, "document-here")
+	progressFromDB, err := syncProgressRepo.SelectByUserIDAndDocument(t.Context(), *userID, "document-here")
 
 	assert.NoError(t, err)
 	assert.Equal(t, reqBody.Percentage, progressFromDB.Percentage)

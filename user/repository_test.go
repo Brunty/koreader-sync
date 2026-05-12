@@ -28,11 +28,11 @@ func TestStoreAndSelectUser(t *testing.T) {
 		CreatedAt: now,
 	}
 
-	_, err := repo.Store(user)
+	_, err := repo.Store(t.Context(), user)
 
 	assert.NoError(t, err)
 
-	userFromDb, err := repo.SelectByUsername("test-username-here")
+	userFromDb, err := repo.SelectByUsername(t.Context(), "test-username-here")
 
 	assert.NoError(t, err)
 	assert.Equal(t, user.Username, userFromDb.Username)
@@ -46,7 +46,7 @@ func TestSelectUserNotFound(t *testing.T) {
 
 	repo := NewUserRepository(db.DBCon)
 
-	userFromDb, err := repo.SelectByUsername("test-username-here")
+	userFromDb, err := repo.SelectByUsername(t.Context(), "test-username-here")
 
 	assert.NoError(t, err)
 	assert.Nil(t, userFromDb)

@@ -26,7 +26,7 @@ func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing
 		Password:  password,
 		CreatedAt: now,
 	}
-	_, err := userRepo.Store(user)
+	_, err := userRepo.Store(t.Context(), user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
@@ -58,7 +58,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUsernameIsBlank(t *testing.T) {
 		Password:  password,
 		CreatedAt: now,
 	}
-	_, err := userRepo.Store(user)
+	_, err := userRepo.Store(t.Context(), user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
@@ -89,7 +89,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsBlank(t *testing.T) {
 		Password:  password,
 		CreatedAt: now,
 	}
-	_, err := userRepo.Store(user)
+	_, err := userRepo.Store(t.Context(), user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
@@ -141,7 +141,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsIncorrect(t *testing.T) {
 		Password:  password,
 		CreatedAt: now,
 	}
-	_, err := userRepo.Store(user)
+	_, err := userRepo.Store(t.Context(), user)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/users/auth", nil)
