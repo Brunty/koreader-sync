@@ -60,5 +60,4 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.WriteStatusResponse(w, http.StatusCreated, "user created")
-	return
 }

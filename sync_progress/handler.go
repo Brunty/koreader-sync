@@ -47,8 +47,6 @@ func (h *SyncProgressHandler) ReadSyncProgress(w http.ResponseWriter, r *http.Re
 	}
 
 	json.NewEncoder(w).Encode(response)
-
-	return
 }
 
 func (h *SyncProgressHandler) StoreSyncProgress(w http.ResponseWriter, r *http.Request) {
@@ -84,6 +82,4 @@ func (h *SyncProgressHandler) StoreSyncProgress(w http.ResponseWriter, r *http.R
 	}
 
 	handlers.WriteStatusResponse(w, http.StatusOK, "sync stored")
-
-	return
 }
