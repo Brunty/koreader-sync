@@ -16,8 +16,8 @@ An example `docker-compose.yml` setup:
 
 ```yaml
 services:
-  app:
-    image: brunty/koreader-sync:v0.1
+  koreader-sync:
+    image: brunty/koreader-sync:latest # Don't use latest, use a specific version
     ports:
       - "8080:8080"
     environment:
