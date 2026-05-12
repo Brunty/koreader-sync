@@ -11,7 +11,7 @@ COPY . .
 
 RUN go build -o /build/main .
 
-WORKDIR /app/cmd/koreader-sync
+WORKDIR /app/cmd/koreader_sync
 
 RUN go build -o /build/kor-cli .
 
