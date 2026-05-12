@@ -58,6 +58,9 @@ func main() {
 		fmt.Println("")
 
 		plainPw := string(bytePw)
+
+		// We MD5 the plain password before Bcrypt hashing it because the KOReader Sync spec specifies that client
+		// devices will md5 the password before providing it in the x-auth-key header
 		md5Pw := md5(plainPw)
 
 		hashedPw, err := crypto.BcryptHashPassword(md5Pw)
