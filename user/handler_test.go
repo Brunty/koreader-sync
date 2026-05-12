@@ -1,7 +1,9 @@
 package user
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,6 +14,22 @@ import (
 	"github.com/brunty/koreader-sync-server/handlers"
 	"github.com/stretchr/testify/assert"
 )
+
+type mockUserRepo struct {
+	storeFn func(ctx context.Context, user User) (*int64, error)
+}
+
+func (m *mockUserRepo) SelectByUsername(ctx context.Context, username string) (*User, error) {
+	return nil, nil
+}
+
+func (m *mockUserRepo) Store(ctx context.Context, user User) (*int64, error) {
+	return m.storeFn(ctx, user)
+}
+
+func (m *mockUserRepo) Update(ctx context.Context, user User) (*int64, error) {
+	return nil, nil
+}
 
 func TestAuthUser(t *testing.T) {
 	setupInMemoryDb()
@@ -163,6 +181,54 @@ func TestCreateUser_FailsMarshalingError(t *testing.T) {
 	reqBody := &CreateUserRequest{
 		Username: "username-here",
 		Password: strings.Repeat("a", 73),
+	}
+	jsonBody, _ := json.Marshal(reqBody)
+	body := strings.NewReader(string(jsonBody))
+	req, _ := http.NewRequest("POST", "/users/create", body)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(userHandler.CreateUser)
+
+	handler.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
+
+	expectedRsp := &handlers.ErrorResponse{Error: "something went wrong"}
+	actualRsp := &handlers.ErrorResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
+}
+
+func TestCreateUser_FailsBadRequestBody(t *testing.T) {
+	userHandler := NewUserHandler(nil)
+
+	body := strings.NewReader("not valid json")
+	req, _ := http.NewRequest("POST", "/users/create", body)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(userHandler.CreateUser)
+
+	handler.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+
+	expectedRsp := &handlers.ErrorResponse{Error: "username and password are required"}
+	actualRsp := &handlers.ErrorResponse{}
+	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	assert.Equal(t, expectedRsp, actualRsp)
+}
+
+func TestCreateUser_FailsRepoStoreError(t *testing.T) {
+	repo := &mockUserRepo{
+		storeFn: func(ctx context.Context, user User) (*int64, error) {
+			return nil, errors.New("db connection failed")
+		},
+	}
+	userHandler := NewUserHandler(repo)
+
+	reqBody := &CreateUserRequest{
+		Username: "username-here",
+		Password: "password-here",
 	}
 	jsonBody, _ := json.Marshal(reqBody)
 	body := strings.NewReader(string(jsonBody))
