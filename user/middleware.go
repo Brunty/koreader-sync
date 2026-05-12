@@ -44,7 +44,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 			return
 		}
 
-		passwordsMatch := crypto.CheckPasswordHash(password, user.Password)
+		passwordsMatch := crypto.BcryptCheckPasswordHash(password, user.Password)
 
 		if !passwordsMatch {
 			slog.Debug("Auth middleware fail, password incorrect")
@@ -54,6 +54,10 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 			// don't continue down the middleware chain as they need to be authorized
 			return
 		}
+
+		// I did consider using crypto.BcryptNeedsRehash here to update passwords if crypto.BcryptCost changes, but it
+		// adds overhead into every request as the auth is checking passwords on everyone due to not using something
+		// like a session token, so just handle that manually in the DB if needed
 
 		// Attach the user ID to the context so they're usable elsewhere
 		ctx := context.WithValue(r.Context(), "user", user.Id)

@@ -8,8 +8,8 @@ import (
 
 func TestPasswordHashing(t *testing.T) {
 	password := "password123" // so secure amirite?!
-	hashedPassword, err := HashPassword(password)
+	hashedPassword, err := BcryptHashPassword(password)
 
 	assert.NoErrorf(t, err, "Should have no error from hashing the crypto")
-	assert.True(t, CheckPasswordHash(password, hashedPassword))
+	assert.True(t, BcryptCheckPasswordHash(password, hashedPassword))
 }

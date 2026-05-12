@@ -68,7 +68,7 @@ func TestCreateUser_Successfully(t *testing.T) {
 	// Check the user was created
 	assert.NoError(t, err)
 	assert.Equal(t, "username-here", user.Username)
-	assert.True(t, crypto.CheckPasswordHash("password-here", user.Password))
+	assert.True(t, crypto.BcryptCheckPasswordHash("password-here", user.Password))
 
 	assert.Equal(t, http.StatusCreated, rr.Code)
 
@@ -118,7 +118,7 @@ func TestCreateUser_FailsDuplicateUser(t *testing.T) {
 
 	userHandler := NewUserHandler(userRepo)
 
-	password, _ := crypto.HashPassword("original-password-here")
+	password, _ := crypto.BcryptHashPassword("original-password-here")
 	user := User{
 		Username: "username-here",
 		Password: password,
@@ -147,7 +147,7 @@ func TestCreateUser_FailsDuplicateUser(t *testing.T) {
 	// Check the original user in the DB wasn't touched
 	assert.NoError(t, err)
 	assert.Equal(t, "username-here", userFromDb.Username)
-	assert.False(t, crypto.CheckPasswordHash("new-password-here", userFromDb.Password))
+	assert.False(t, crypto.BcryptCheckPasswordHash("new-password-here", userFromDb.Password))
 
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 

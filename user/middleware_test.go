@@ -20,7 +20,7 @@ func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing
 
 	now := time.Now()
 
-	password, _ := crypto.HashPassword("test-password-here")
+	password, _ := crypto.BcryptHashPassword("test-password-here")
 	user := User{
 		Username:  "test-username-here",
 		Password:  password,
@@ -52,7 +52,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUsernameIsBlank(t *testing.T) {
 
 	now := time.Now()
 
-	password, _ := crypto.HashPassword("test-password-here")
+	password, _ := crypto.BcryptHashPassword("test-password-here")
 	user := User{
 		Username:  "test-username-here",
 		Password:  password,
@@ -83,7 +83,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsBlank(t *testing.T) {
 
 	now := time.Now()
 
-	password, _ := crypto.HashPassword("test-password-here")
+	password, _ := crypto.BcryptHashPassword("test-password-here")
 	user := User{
 		Username:  "test-username-here",
 		Password:  password,
@@ -135,7 +135,7 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsIncorrect(t *testing.T) {
 
 	now := time.Now()
 
-	password, _ := crypto.HashPassword("test-password-here")
+	password, _ := crypto.BcryptHashPassword("test-password-here")
 	user := User{
 		Username:  "test-username-here",
 		Password:  password,

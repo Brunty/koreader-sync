@@ -27,7 +27,7 @@ func TestReadSyncProgress_Successfully(t *testing.T) {
 	syncHandler := NewSyncProgressHandler(syncProgressRepo)
 
 	now := time.Now()
-	password, _ := crypto.HashPassword("test-password-here")
+	password, _ := crypto.BcryptHashPassword("test-password-here")
 	user := userpackage.User{
 		Username:  "test-username-here",
 		Password:  password,
@@ -87,7 +87,7 @@ func TestReadSyncProgress_SyncNotFoundInDB(t *testing.T) {
 	syncHandler := NewSyncProgressHandler(syncProgressRepo)
 
 	now := time.Now()
-	password, _ := crypto.HashPassword("test-password-here")
+	password, _ := crypto.BcryptHashPassword("test-password-here")
 	user := userpackage.User{
 		Username:  "test-username-here",
 		Password:  password,
@@ -133,7 +133,7 @@ func TestGetSyncProgress_SyncNotFoundNoURLParam(t *testing.T) {
 	syncHandler := NewSyncProgressHandler(syncProgressRepo)
 
 	now := time.Now()
-	password, _ := crypto.HashPassword("test-password-here")
+	password, _ := crypto.BcryptHashPassword("test-password-here")
 	user := userpackage.User{
 		Username:  "test-username-here",
 		Password:  password,
@@ -178,7 +178,7 @@ func TestStoreSyncProgress_SuccessfulUpdateProgress(t *testing.T) {
 	syncHandler := NewSyncProgressHandler(syncProgressRepo)
 
 	now := time.Now()
-	password, _ := crypto.HashPassword("test-password-here")
+	password, _ := crypto.BcryptHashPassword("test-password-here")
 	user := userpackage.User{
 		Username:  "test-username-here",
 		Password:  password,

@@ -32,7 +32,7 @@ func (req *CreateUserRequest) Validate() error {
 }
 
 func (req *CreateUserRequest) MarshalToUser() (User, error) {
-	hashedPw, err := crypto.HashPassword(req.Password)
+	hashedPw, err := crypto.BcryptHashPassword(req.Password)
 	if err != nil {
 		return User{}, err
 	}

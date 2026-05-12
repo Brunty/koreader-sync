@@ -2,12 +2,23 @@ package crypto
 
 import "golang.org/x/crypto/bcrypt"
 
-func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+const BcryptCost int = 12
+
+func BcryptHashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), BcryptCost)
 	return string(bytes), err
 }
 
-func CheckPasswordHash(password, hash string) bool {
+func BcryptCheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
+}
+
+func BcryptNeedsRehash(hash string) bool {
+	costOfHash, err := bcrypt.Cost([]byte(hash))
+	if err != nil {
+		return false
+	}
+
+	return costOfHash != BcryptCost
 }

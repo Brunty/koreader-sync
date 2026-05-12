@@ -40,5 +40,5 @@ func TestCreateUserRequest_MarshalToUser(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, req.Username, user.Username)
-	assert.True(t, crypto.CheckPasswordHash(req.Password, user.Password))
+	assert.True(t, crypto.BcryptCheckPasswordHash(req.Password, user.Password))
 }
