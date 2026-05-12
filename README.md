@@ -44,3 +44,19 @@ stored in the Docker volume
 5. Set up automatic sync to your preferences ("Automatically keep documents in sync" and then configuring how often sync
 is sent)
 
+## Changing your password
+
+If you need to change your password, there's a command line tool within the container:
+
+`docker exec -it $containerID /bin/sh`
+
+You can then use `./kor-cli` to call the `change-password` subcommand with a `-username` flag for the user you want to
+change the password for. You'll be prompted to enter the new password by the terminal and it'll then save the new
+password to that user
+
+```
+/app # ./kor-cli change-password -username myuser
+Looking for user: myuser
+Password: [you will type your new password here]
+Updated password for myuser
+```
