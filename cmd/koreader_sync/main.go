@@ -18,6 +18,8 @@ import (
 	"golang.org/x/term"
 )
 
+var osExit = os.Exit
+
 func main() {
 	ctx := context.Background()
 
@@ -30,39 +32,59 @@ func main() {
 	database.CreateTables()
 	defer database.DBCon.Close()
 
-	if len(os.Args) < 2 {
+	exitCode := runSubcommand(ctx, os.Args)
+	if exitCode != 0 {
+		osExit(exitCode)
+	}
+}
+
+func runSubcommand(
+	ctx context.Context,
+	args []string,
+) int {
+	if len(args) < 2 {
 		fmt.Println("expected subcommand")
-		os.Exit(1)
+		return 1
 	}
 
-	userRepo := userpackage.NewUserRepository(database.DBCon)
-
-	switch os.Args[1] {
+	switch args[1] {
 	case "change-password":
-		changePwCmd := flag.NewFlagSet("changePw", flag.ExitOnError)
-		username := changePwCmd.String("username", "", "Username to change the password for")
-		changePwCmd.Parse(os.Args[2:])
-
-		fmt.Print("Password: ")
-		bytePw, err := term.ReadPassword(syscall.Stdin)
-		if err != nil {
-			fmt.Println("Error reading password")
-			os.Exit(1)
-		}
-
-		fmt.Println("")
-		fmt.Println("")
-
-		err = changePassword(ctx, userRepo, *username, string(bytePw))
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
-
-		fmt.Println("Updated password for " + *username)
+		userRepo := userpackage.NewUserRepository(database.DBCon)
+		return runChangePassword(ctx, args, userRepo)
 	default:
 		fmt.Println("Unknown command")
+		return 0
 	}
+}
+
+func runChangePassword(
+	ctx context.Context,
+	args []string,
+	userRepo userpackage.UserRepository,
+) int {
+
+	changePwCmd := flag.NewFlagSet("changePw", flag.ExitOnError)
+	username := changePwCmd.String("username", "", "Username to change the password for")
+	changePwCmd.Parse(args[2:])
+
+	fmt.Print("Password: ")
+	bytePw, err := term.ReadPassword(syscall.Stdin)
+	if err != nil {
+		fmt.Println("Error reading password")
+		return 1
+	}
+
+	fmt.Println("")
+	fmt.Println("")
+
+	err = changePassword(ctx, userRepo, *username, string(bytePw))
+	if err != nil {
+		fmt.Println(err.Error())
+		return 1
+	}
+
+	fmt.Println("Updated password for " + *username)
+	return 0
 }
 
 func md5(text string) string {

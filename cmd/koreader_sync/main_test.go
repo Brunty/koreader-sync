@@ -3,12 +3,69 @@ package main
 import (
 	"context"
 	"errors"
+	"syscall"
 	"testing"
 
 	"github.com/brunty/koreader-sync-server/crypto"
 	userpackage "github.com/brunty/koreader-sync-server/user"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestRunSubcommand_NoArgs(t *testing.T) {
+	exitCode := runSubcommand(context.Background(), []string{"koreader-sync"})
+	assert.Equal(t, 1, exitCode)
+}
+
+func TestRunSubcommand_UnknownCommand(t *testing.T) {
+	exitCode := runSubcommand(context.Background(), []string{"koreader-sync", "unknown"})
+	assert.Equal(t, 0, exitCode)
+}
+
+func TestRunChangePassword_ReadPasswordError(t *testing.T) {
+	exitCode := runChangePassword(context.Background(), []string{"koreader-sync", "change-password", "-username", "test-user"}, nil)
+	assert.Equal(t, 1, exitCode)
+}
+
+func TestRunChangePassword_UserNotFound(t *testing.T) {
+	repo := &mockUserRepo{
+		selectByUsernameFn: func(ctx context.Context, username string) (*userpackage.User, error) {
+			return nil, nil
+		},
+	}
+
+	exitCode := runChangePassword(context.Background(), []string{"koreader-sync", "change-password", "-username", "nonexistent"}, repo)
+	assert.Equal(t, 1, exitCode)
+}
+
+func TestRunChangePassword_UpdateError(t *testing.T) {
+	repo := &mockUserRepo{
+		selectByUsernameFn: func(ctx context.Context, username string) (*userpackage.User, error) {
+			return &userpackage.User{Id: 1, Username: "test-user"}, nil
+		},
+		updateFn: func(ctx context.Context, user userpackage.User) (*int64, error) {
+			return nil, errors.New("db error")
+		},
+	}
+
+	exitCode := runChangePassword(context.Background(), []string{"koreader-sync", "change-password", "-username", "test-user"}, repo)
+	assert.Equal(t, 1, exitCode)
+}
+
+func TestRunChangePassword_StdinFd(t *testing.T) {
+	var capturedFd int
+	repo := &mockUserRepo{
+		selectByUsernameFn: func(ctx context.Context, username string) (*userpackage.User, error) {
+			return &userpackage.User{Id: 1, Username: "test-user"}, nil
+		},
+		updateFn: func(ctx context.Context, user userpackage.User) (*int64, error) {
+			return int64Ptr(1), nil
+		},
+	}
+
+	runChangePassword(context.Background(), []string{"koreader-sync", "change-password", "-username", "test-user"}, repo)
+
+	assert.Equal(t, syscall.Stdin, capturedFd)
+}
 
 type mockUserRepo struct {
 	selectByUsernameFn func(ctx context.Context, username string) (*userpackage.User, error)
