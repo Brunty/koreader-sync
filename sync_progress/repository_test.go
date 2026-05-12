@@ -60,3 +60,35 @@ func TestSelectProgressNotFound(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Nil(t, progressFromDb)
 }
+
+func TestSelectByUserIDAndDocument_DBError(t *testing.T) {
+	setupInMemoryDb()
+
+	repo := NewSyncProgressRepository(db.DBCon)
+	db.DBCon.Close()
+
+	progress, err := repo.SelectByUserIDAndDocument(t.Context(), 1, "document-here")
+	assert.Error(t, err)
+	assert.Nil(t, progress)
+}
+
+func TestStoreProgress_DBError(t *testing.T) {
+	setupInMemoryDb()
+
+	repo := NewSyncProgressRepository(db.DBCon)
+	db.DBCon.Close()
+
+	progress := SyncProgress{
+		UserID:     1,
+		Document:   "document-here",
+		Progress:   "progress-here",
+		Percentage: 0.35,
+		Device:     "device-here",
+		DeviceID:   "device-id-here",
+		Timestamp:  time.Now(),
+	}
+
+	id, err := repo.Store(t.Context(), progress)
+	assert.Error(t, err)
+	assert.Nil(t, id)
+}
