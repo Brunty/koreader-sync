@@ -18,6 +18,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const TestDBName = "/tmp/koreader-sync/data.test.db.sqlite3"
+
 // These tests are more like acceptance tests as I want to call via HTTP so that it's not just invoking handlers, that
 // way we can check things like auth middleware works properly on appropriate routes and the whole flows work
 // These aren't testing full logic of the handlers (the handler tests are better for that) these are to ensure that
@@ -25,10 +27,11 @@ import (
 
 func setupAcceptanceTests(t *testing.T) *httptest.Server {
 	t.Cleanup(func() {
-		_ = os.Remove("./data/data.test.db.sqlite3")
+		_ = os.Mkdir("/tmp/koreader-sync", 0755)
+		_ = os.Remove(TestDBName)
 	})
 
-	err := db.Init("./data/data.test.db.sqlite3")
+	err := db.Init(TestDBName)
 	assert.NoError(t, err)
 
 	db.SetupTables()
