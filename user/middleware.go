@@ -29,7 +29,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 			slog.Debug("Auth middleware fail, username or password empty")
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(&handlers.StatusResponse{Status: "unauthorized"})
+			json.NewEncoder(w).Encode(&handlers.ErrorResponse{Error: "unauthorized"})
 			// don't continue down the middleware chain as they need to be authorized
 			return
 		}
@@ -39,7 +39,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 			slog.Debug("Auth middleware fail, user not found")
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(&handlers.StatusResponse{Status: "unauthorized"})
+			json.NewEncoder(w).Encode(&handlers.ErrorResponse{Error: "unauthorized"})
 			// don't continue down the middleware chain as they need to be authorized
 			return
 		}
@@ -50,7 +50,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 			slog.Debug("Auth middleware fail, password incorrect")
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(&handlers.StatusResponse{Status: "unauthorized"})
+			json.NewEncoder(w).Encode(&handlers.ErrorResponse{Error: "unauthorized"})
 			// don't continue down the middleware chain as they need to be authorized
 			return
 		}
