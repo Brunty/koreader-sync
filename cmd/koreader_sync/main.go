@@ -29,7 +29,7 @@ func main() {
 		return
 	}
 
-	database.CreateTables()
+	database.SetupTables()
 	defer database.DBCon.Close()
 
 	exitCode := runSubcommand(ctx, os.Args)

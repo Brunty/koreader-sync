@@ -10,7 +10,7 @@ import (
 
 func setupInMemoryDb() {
 	db.Init(":memory:")
-	db.CreateTables()
+	db.SetupTables()
 }
 
 func TestStoreAndSelectUser(t *testing.T) {

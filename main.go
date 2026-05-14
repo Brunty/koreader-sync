@@ -21,8 +21,8 @@ func main() {
 	}
 	defer db.DBCon.Close()
 
-	db.CreateTables()
-	slog.Debug("DB Tables created")
+	db.SetupTables()
+	slog.Debug("DB tables setup")
 
 	mux := &ServeMux{http.NewServeMux()}
 

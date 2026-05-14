@@ -9,6 +9,10 @@ import (
 )
 
 func TestInit_Successfully(t *testing.T) {
+	t.Cleanup(func() {
+		_ = DBCon.Close()
+		EmptyTables()
+	})
 	err := Init(":memory:")
 
 	assert.NoError(t, err)
@@ -21,13 +25,16 @@ func TestInit_InvalidDriver(t *testing.T) {
 }
 
 // Is this necessary as table creation is implicitely tested in other tests because y'know, WE CAN PUT STUFF IN THE
-// TABLES... no. It's not. But it was a fun test to write to poke around with the sqlite_schema stuff, so there's that
-func TestCreateTables_Successfully(t *testing.T) {
+// TABLES..? no. It's not. But it was a fun test to write to poke around with the sqlite_schema stuff, so there's that
+func TestSetupTables_Successfully(t *testing.T) {
+	t.Cleanup(func() {
+		_ = DBCon.Close()
+		EmptyTables()
+	})
 	err := Init(":memory:")
 	assert.NoError(t, err)
-	defer EmptyTables()
 
-	CreateTables()
+	SetupTables()
 
 	rows, err := DBCon.Query(`
 		SELECT COUNT(name)

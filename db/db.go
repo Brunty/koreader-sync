@@ -23,7 +23,7 @@ func initWithDriver(driver, dbFile string) error {
 	return nil
 }
 
-func CreateTables() {
+func SetupTables() {
 	DBCon.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
