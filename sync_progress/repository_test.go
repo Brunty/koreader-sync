@@ -8,15 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setupInMemoryDb() {
-	db.Init(":memory:")
-	db.SetupTables()
-}
-
 func TestStoreAndSelectProgress(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewSyncProgressRepository(db.DBCon)
 
@@ -49,9 +43,8 @@ func TestStoreAndSelectProgress(t *testing.T) {
 }
 
 func TestSelectProgressNotFound(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewSyncProgressRepository(db.DBCon)
 
@@ -62,10 +55,12 @@ func TestSelectProgressNotFound(t *testing.T) {
 }
 
 func TestSelectByUserIDAndDocument_DBError(t *testing.T) {
-	setupInMemoryDb()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewSyncProgressRepository(db.DBCon)
-	db.DBCon.Close()
+	// Close the DB before trying to access it will cause an error which we want to test
+	_ = db.DBCon.Close()
 
 	progress, err := repo.SelectByUserIDAndDocument(t.Context(), 1, "document-here")
 	assert.Error(t, err)
@@ -73,10 +68,12 @@ func TestSelectByUserIDAndDocument_DBError(t *testing.T) {
 }
 
 func TestStoreProgress_DBError(t *testing.T) {
-	setupInMemoryDb()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewSyncProgressRepository(db.DBCon)
-	db.DBCon.Close()
+	// Close the DB before trying to access it will cause an error which we want to test
+	_ = db.DBCon.Close()
 
 	progress := SyncProgress{
 		UserID:     1,

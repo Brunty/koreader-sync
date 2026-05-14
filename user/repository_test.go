@@ -8,15 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setupInMemoryDb() {
-	db.Init(":memory:")
-	db.SetupTables()
-}
-
 func TestStoreAndSelectUser(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewUserRepository(db.DBCon)
 
@@ -40,9 +34,8 @@ func TestStoreAndSelectUser(t *testing.T) {
 }
 
 func TestSelectUserNotFound(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewUserRepository(db.DBCon)
 
@@ -53,9 +46,8 @@ func TestSelectUserNotFound(t *testing.T) {
 }
 
 func TestStoreUser_Duplicate(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewUserRepository(db.DBCon)
 
@@ -73,10 +65,12 @@ func TestStoreUser_Duplicate(t *testing.T) {
 }
 
 func TestSelectByUsername_DBError(t *testing.T) {
-	setupInMemoryDb()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewUserRepository(db.DBCon)
-	db.DBCon.Close()
+	// Close the DB before trying to access it will cause an error which we want to test
+	_ = db.DBCon.Close()
 
 	user, err := repo.SelectByUsername(t.Context(), "test-user")
 	assert.Error(t, err)
@@ -84,10 +78,12 @@ func TestSelectByUsername_DBError(t *testing.T) {
 }
 
 func TestStoreUser_DBError(t *testing.T) {
-	setupInMemoryDb()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewUserRepository(db.DBCon)
-	db.DBCon.Close()
+	// Close the DB before trying to access it will cause an error which we want to test
+	_ = db.DBCon.Close()
 
 	user := User{
 		Username:  "test-user",
@@ -101,9 +97,8 @@ func TestStoreUser_DBError(t *testing.T) {
 }
 
 func TestUpdateUser_Success(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewUserRepository(db.DBCon)
 
@@ -127,10 +122,12 @@ func TestUpdateUser_Success(t *testing.T) {
 }
 
 func TestUpdateUser_DBError(t *testing.T) {
-	setupInMemoryDb()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	repo := NewUserRepository(db.DBCon)
-	db.DBCon.Close()
+	// Close the DB before trying to access it will cause an error which we want to test
+	_ = db.DBCon.Close()
 
 	user := User{
 		Username: "test-user",

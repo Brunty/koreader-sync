@@ -31,9 +31,8 @@ func (m *mockSyncProgressRepo) Store(ctx context.Context, syncProgress SyncProgr
 }
 
 func TestReadSyncProgress_Successfully(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	syncProgressRepo := NewSyncProgressRepository(db.DBCon)
 	userRepo := userpackage.NewUserRepository(db.DBCon)
@@ -86,14 +85,13 @@ func TestReadSyncProgress_Successfully(t *testing.T) {
 		Timestamp:  now.Unix(),
 	}
 	actualRsp := &ReadSyncProgressResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
 func TestReadSyncProgress_SyncNotFoundInDB(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	syncProgressRepo := NewSyncProgressRepository(db.DBCon)
 	userRepo := userpackage.NewUserRepository(db.DBCon)
@@ -132,14 +130,13 @@ func TestReadSyncProgress_SyncNotFoundInDB(t *testing.T) {
 		Timestamp:  0,
 	}
 	actualRsp := &ReadSyncProgressResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
 func TestGetSyncProgress_SyncNotFoundNoURLParam(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	syncProgressRepo := NewSyncProgressRepository(db.DBCon)
 	userRepo := userpackage.NewUserRepository(db.DBCon)
@@ -177,14 +174,13 @@ func TestGetSyncProgress_SyncNotFoundNoURLParam(t *testing.T) {
 		Timestamp:  0,
 	}
 	actualRsp := &ReadSyncProgressResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
 func TestStoreSyncProgress_SuccessfulUpdateProgress(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	syncProgressRepo := NewSyncProgressRepository(db.DBCon)
 	userRepo := userpackage.NewUserRepository(db.DBCon)
@@ -238,7 +234,7 @@ func TestStoreSyncProgress_SuccessfulUpdateProgress(t *testing.T) {
 
 	expectedRsp := &handlers.StatusResponse{Status: "sync stored"}
 	actualRsp := &handlers.StatusResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 
 	progressFromDB, err := syncProgressRepo.SelectByUserIDAndDocument(t.Context(), *userID, "document-here")
@@ -262,7 +258,7 @@ func TestStoreSyncProgress_BadRequestBody(t *testing.T) {
 
 	expectedRsp := &handlers.ErrorResponse{Error: "bad body content"}
 	actualRsp := &handlers.ErrorResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
@@ -288,7 +284,7 @@ func TestStoreSyncProgress_ValidationError(t *testing.T) {
 
 	expectedRsp := &handlers.ErrorResponse{Error: "device_id is required\nprogress is required\ndocument is required\ndevice is required"}
 	actualRsp := &handlers.ErrorResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
@@ -319,7 +315,7 @@ func TestStoreSyncProgress_RepoStoreError(t *testing.T) {
 
 	expectedRsp := &handlers.ErrorResponse{Error: "something went wrong"}
 	actualRsp := &handlers.ErrorResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
@@ -342,6 +338,6 @@ func TestReadSyncProgress_RepoSelectError(t *testing.T) {
 
 	expectedRsp := &handlers.ErrorResponse{Error: "something went wrong"}
 	actualRsp := &handlers.ErrorResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }

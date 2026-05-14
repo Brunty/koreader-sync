@@ -19,7 +19,7 @@ type mockUserRepo struct {
 	storeFn func(ctx context.Context, user User) (*int64, error)
 }
 
-func (m *mockUserRepo) SelectByUsername(ctx context.Context, username string) (*User, error) {
+func (m *mockUserRepo) SelectByUsername(_ context.Context, _ string) (*User, error) {
 	return nil, nil
 }
 
@@ -27,14 +27,13 @@ func (m *mockUserRepo) Store(ctx context.Context, user User) (*int64, error) {
 	return m.storeFn(ctx, user)
 }
 
-func (m *mockUserRepo) Update(ctx context.Context, user User) (*int64, error) {
+func (m *mockUserRepo) Update(_ context.Context, _ User) (*int64, error) {
 	return nil, nil
 }
 
 func TestAuthUser(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	userRepo := NewUserRepository(db.DBCon)
 
@@ -54,14 +53,13 @@ func TestAuthUser(t *testing.T) {
 
 	expectedRsp := &handlers.StatusResponse{Status: "authorized"}
 	actualRsp := &handlers.StatusResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
 func TestCreateUser_Successfully(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	userRepo := NewUserRepository(db.DBCon)
 
@@ -92,14 +90,13 @@ func TestCreateUser_Successfully(t *testing.T) {
 
 	expectedRsp := &handlers.StatusResponse{Status: "user created"}
 	actualRsp := &handlers.StatusResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
 func TestCreateUser_FailsBlankUserDetails(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	userRepo := NewUserRepository(db.DBCon)
 
@@ -123,14 +120,13 @@ func TestCreateUser_FailsBlankUserDetails(t *testing.T) {
 
 	expectedRsp := &handlers.ErrorResponse{Error: "username is required\npassword is required"}
 	actualRsp := &handlers.ErrorResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
 func TestCreateUser_FailsDuplicateUser(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	userRepo := NewUserRepository(db.DBCon)
 
@@ -171,7 +167,7 @@ func TestCreateUser_FailsDuplicateUser(t *testing.T) {
 
 	expectedRsp := &handlers.ErrorResponse{Error: "username is already taken"}
 	actualRsp := &handlers.ErrorResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
@@ -195,7 +191,7 @@ func TestCreateUser_FailsMarshalingError(t *testing.T) {
 
 	expectedRsp := &handlers.ErrorResponse{Error: "something went wrong"}
 	actualRsp := &handlers.ErrorResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
@@ -214,7 +210,7 @@ func TestCreateUser_FailsBadRequestBody(t *testing.T) {
 
 	expectedRsp := &handlers.ErrorResponse{Error: "username and password are required"}
 	actualRsp := &handlers.ErrorResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }
 
@@ -243,6 +239,6 @@ func TestCreateUser_FailsRepoStoreError(t *testing.T) {
 
 	expectedRsp := &handlers.ErrorResponse{Error: "something went wrong"}
 	actualRsp := &handlers.ErrorResponse{}
-	json.Unmarshal(rr.Body.Bytes(), &actualRsp)
+	_ = json.Unmarshal(rr.Body.Bytes(), &actualRsp)
 	assert.Equal(t, expectedRsp, actualRsp)
 }

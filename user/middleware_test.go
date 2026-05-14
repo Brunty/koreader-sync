@@ -12,9 +12,8 @@ import (
 )
 
 func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	userRepo := NewUserRepository(db.DBCon)
 
@@ -44,9 +43,8 @@ func TestAuthMiddleware_PassesToNextHandlerOnSuccessfulAuthentication(t *testing
 }
 
 func TestAuthMiddleware_ReturnsUnauthorizedIfUsernameIsBlank(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	userRepo := NewUserRepository(db.DBCon)
 
@@ -75,9 +73,8 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUsernameIsBlank(t *testing.T) {
 }
 
 func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsBlank(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	userRepo := NewUserRepository(db.DBCon)
 
@@ -106,9 +103,8 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsBlank(t *testing.T) {
 }
 
 func TestAuthMiddleware_ReturnsUnauthorizedIfUserIsNotFound(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	userRepo := NewUserRepository(db.DBCon)
 
@@ -127,9 +123,8 @@ func TestAuthMiddleware_ReturnsUnauthorizedIfUserIsNotFound(t *testing.T) {
 }
 
 func TestAuthMiddleware_ReturnsUnauthorizedIfPasswordIsIncorrect(t *testing.T) {
-	setupInMemoryDb()
-	defer db.EmptyTables()
-	defer db.DBCon.Close()
+	_ = db.Init(":memory:")
+	db.SetupTables()
 
 	userRepo := NewUserRepository(db.DBCon)
 
