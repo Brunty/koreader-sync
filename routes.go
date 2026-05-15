@@ -3,8 +3,12 @@ package main
 import (
 	"net/http"
 
+	"github.com/brunty/koreader-sync-server/auth"
 	database "github.com/brunty/koreader-sync-server/db"
 	"github.com/brunty/koreader-sync-server/handlers"
+	"github.com/brunty/koreader-sync-server/logger"
+	"github.com/brunty/koreader-sync-server/middleware"
+	"github.com/brunty/koreader-sync-server/request_id"
 	"github.com/brunty/koreader-sync-server/sync_progress"
 	userpackage "github.com/brunty/koreader-sync-server/user"
 )
@@ -18,21 +22,26 @@ func (mux ServeMux) RegisterRoutes() ServeMux {
 	// endpoints and spec for how this server should work
 
 	db := database.DBCon
-	mux.Handle("GET /{$}", http.HandlerFunc(handlers.Home))
 
 	userRepo := userpackage.NewUserRepository(db)
-	authMiddleware := userpackage.NewAuthMiddleware(userRepo)
+	authMiddleware := auth.NewAuthMiddleware(userRepo)
+
 	userHandler := userpackage.NewUserHandler(userRepo)
 	syncHandler := sync_progress.NewSyncProgressHandler(sync_progress.NewSyncProgressRepository(db))
 
-	mux.Handle("POST /users/create", http.HandlerFunc(userHandler.CreateUser))
+	// Middleware is processed in the order they are added to the chain
+	baseMiddlewareChain := middleware.Chain{request_id.AddRequestIDToMiddleware, logger.LogRequestDetails}
+	authMiddlewareChain := baseMiddlewareChain.Extend(authMiddleware.Handle)
+
+	// The following routes don't need an auth'd user to access them
+	mux.Handle("GET /{$}", baseMiddlewareChain.ThenFunc(handlers.Home))
+	mux.Handle("/{path...}", baseMiddlewareChain.ThenFunc(handlers.NotFound))
+	mux.Handle("POST /users/create", baseMiddlewareChain.ThenFunc(userHandler.CreateUser))
 
 	// The following routes need an auth'd user to access them
-	mux.Handle("GET /users/auth", authMiddleware.Handle(http.HandlerFunc(userHandler.AuthUser)))
-	mux.Handle("PUT /syncs/progress", authMiddleware.Handle(http.HandlerFunc(syncHandler.StoreSyncProgress)))
-	mux.Handle("GET /syncs/progress/{document}", authMiddleware.Handle(http.HandlerFunc(syncHandler.ReadSyncProgress)))
-
-	mux.Handle("/{path...}", http.HandlerFunc(handlers.NotFound))
+	mux.Handle("GET /users/auth", authMiddlewareChain.ThenFunc(userHandler.AuthUser))
+	mux.Handle("PUT /syncs/progress", authMiddlewareChain.ThenFunc(syncHandler.StoreSyncProgress))
+	mux.Handle("GET /syncs/progress/{document}", authMiddlewareChain.ThenFunc(syncHandler.ReadSyncProgress))
 
 	return mux
 }
