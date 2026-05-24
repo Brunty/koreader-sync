@@ -22,7 +22,7 @@ func getLogLevel() slog.Level {
 	}
 }
 
-func init() {
+func Init() {
 	Logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: getLogLevel(),
 	}))

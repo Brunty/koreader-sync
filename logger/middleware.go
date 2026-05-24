@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -34,7 +33,7 @@ func Recover(next http.Handler) http.Handler {
 			if r := recover(); r != nil {
 				slog.Error("panic recovered", slog.Any("panic", r))
 				w.Header().Set("Content-Type", "application/json")
-				_ = json.NewEncoder(w).Encode(&handlers.ErrorResponse{Error: "internal server error"})
+				handlers.WriteErrorResponse(w, http.StatusInternalServerError, "internal server error")
 				return
 			}
 		}()

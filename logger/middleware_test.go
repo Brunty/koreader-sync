@@ -72,3 +72,26 @@ func TestLogRequestDetails_WithRequestID(t *testing.T) {
 	assert.Contains(t, logOutput, "GET")
 	assert.Contains(t, logOutput, "/test/path")
 }
+
+func TestRecover(t *testing.T) {
+	var buf bytes.Buffer
+	originalLogger := slog.Default()
+	logger := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	slog.SetDefault(logger)
+	defer slog.SetDefault(originalLogger)
+
+	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("panic here")
+	})
+
+	req := httptest.NewRequest("GET", "/test/path", nil)
+
+	handler := Recover(nextHandler)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
+
+	logOutput := buf.String()
+	assert.Contains(t, logOutput, "panic recovered")
+}

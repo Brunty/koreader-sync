@@ -8,9 +8,12 @@ import (
 	"os"
 
 	"github.com/brunty/koreader-sync-server/db"
+	"github.com/brunty/koreader-sync-server/logger"
 )
 
 func init() {
+	logger.Init()
+
 	// We use Init rather than init because we want to specify a DB file and be able to return errorsF
 	err := db.Init("./data/data.db.sqlite3")
 	if err != nil {
