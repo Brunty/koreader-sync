@@ -30,7 +30,7 @@ func (mux ServeMux) RegisterRoutes() ServeMux {
 	syncHandler := sync_progress.NewSyncProgressHandler(sync_progress.NewSyncProgressRepository(db))
 
 	// Middleware is processed in the order they are added to the chain
-	baseMiddlewareChain := middleware.Chain{request_id.AddRequestIDToMiddleware, logger.LogRequestDetails}
+	baseMiddlewareChain := middleware.Chain{logger.Recover, request_id.AddRequestIDToMiddleware, logger.LogRequestDetails}
 	authMiddlewareChain := baseMiddlewareChain.Extend(authMiddleware.Handle)
 
 	// The following routes don't need an auth'd user to access them
