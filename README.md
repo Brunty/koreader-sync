@@ -33,6 +33,16 @@ volumes:
 Then run `docker-compose up -d` and the server will be running at `http://localhost:8080` and the database will be
 stored in the Docker volume
 
+## Environment variables
+
+All configuration is via environment variables. None are required - sensible defaults are used when they're not set.
+
+| Variable               | Possible values                  | Default | Description                                                                                                                                  |
+|------------------------|----------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `PORT`                 | Any valid TCP port number        | `8080`  | The port the HTTP server listens on.                                                                                                          |
+| `LOG_LEVEL`            | `DEBUG`, `INFO`, `WARN`, `ERROR` | `WARN`  | Minimum severity of log messages written to stderr. `DEBUG` is very verbose and only useful when actively debugging. Any unrecognised value falls back to `WARN`. |
+| `DISABLE_REGISTRATION` | `true`, `false` (also `1`/`0`)   | `false` | When truthy, new user registration is blocked and the register endpoint returns `403 Forbidden`. Useful for keeping the server private once your users are set up. |
+
 ## Connecting Your KOReader Device
 
 1. Open a book (or document) in KOReader on your device.
