@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/brunty/koreader-sync-server/db"
 	"github.com/brunty/koreader-sync-server/logger"
@@ -38,5 +39,15 @@ func main() {
 		port = "8080"
 	}
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), mux))
+	srv := &http.Server{
+		Addr:              fmt.Sprintf(":%s", port),
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
+		MaxHeaderBytes:    1 << 20, // 1 MiB
+	}
+
+	log.Fatal(srv.ListenAndServe())
 }
