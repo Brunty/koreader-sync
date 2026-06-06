@@ -10,7 +10,7 @@ import (
 	"github.com/brunty/koreader-sync-server/middleware"
 	"github.com/brunty/koreader-sync-server/request_id"
 	"github.com/brunty/koreader-sync-server/sync_progress"
-	userpackage "github.com/brunty/koreader-sync-server/user"
+	"github.com/brunty/koreader-sync-server/user"
 )
 
 type ServeMux struct {
@@ -23,20 +23,25 @@ func (mux ServeMux) RegisterRoutes() ServeMux {
 
 	db := database.DBCon
 
-	userRepo := userpackage.NewUserRepository(db)
+	userRepo := user.NewUserRepository(db)
 	authMiddleware := auth.NewAuthMiddleware(userRepo)
 
-	userHandler := userpackage.NewUserHandler(userRepo)
+	userHandler := user.NewUserHandler(userRepo)
 	syncHandler := sync_progress.NewSyncProgressHandler(sync_progress.NewSyncProgressRepository(db))
 
 	// Middleware is processed in the order they are added to the chain
 	baseMiddlewareChain := middleware.Chain{logger.Recover, request_id.AddRequestIDToMiddleware, logger.LogRequestDetails}
 	authMiddlewareChain := baseMiddlewareChain.Extend(authMiddleware.Handle)
 
+	createUserHandler := userHandler.CreateUser
+	if user.RegistrationIsDisabled() {
+		createUserHandler = userHandler.CreateUserDisabled
+	}
+
 	// The following routes don't need an auth'd user to access them
 	mux.Handle("GET /{$}", baseMiddlewareChain.ThenFunc(handlers.Home))
 	mux.Handle("/{path...}", baseMiddlewareChain.ThenFunc(handlers.NotFound))
-	mux.Handle("POST /users/create", baseMiddlewareChain.ThenFunc(userHandler.CreateUser))
+	mux.Handle("POST /users/create", baseMiddlewareChain.ThenFunc(createUserHandler))
 
 	// The following routes need an auth'd user to access them
 	mux.Handle("GET /users/auth", authMiddlewareChain.ThenFunc(userHandler.AuthUser))

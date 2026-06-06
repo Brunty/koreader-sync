@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/brunty/koreader-sync-server/handlers"
@@ -60,4 +62,13 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlers.WriteStatusResponse(w, http.StatusCreated, "user created")
+}
+
+func (h *UserHandler) CreateUserDisabled(w http.ResponseWriter, _ *http.Request) {
+	handlers.WriteErrorResponse(w, http.StatusForbidden, "user registrations are disabled")
+}
+
+func RegistrationIsDisabled() bool {
+	disabled, _ := strconv.ParseBool(os.Getenv("DISABLE_REGISTRATION"))
+	return disabled
 }
