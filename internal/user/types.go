@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/brunty/koreader-sync-server/crypto"
+	"github.com/brunty/koreader-sync-server/internal/crypto"
 )
 
 type User struct {

@@ -8,8 +8,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/logger"
+	"github.com/brunty/koreader-sync-server/internal/db"
+	"github.com/brunty/koreader-sync-server/internal/logger"
+	"github.com/brunty/koreader-sync-server/internal/server"
 )
 
 func init() {
@@ -29,7 +30,7 @@ func init() {
 func main() {
 	defer db.DBCon.Close()
 
-	mux := &ServeMux{http.NewServeMux()}
+	mux := server.NewServeMux()
 
 	mux.RegisterRoutes()
 

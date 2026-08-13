@@ -11,9 +11,9 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/brunty/koreader-sync-server/crypto"
-	database "github.com/brunty/koreader-sync-server/db"
-	userpackage "github.com/brunty/koreader-sync-server/user"
+	"github.com/brunty/koreader-sync-server/internal/crypto"
+	database "github.com/brunty/koreader-sync-server/internal/db"
+	userpackage "github.com/brunty/koreader-sync-server/internal/user"
 
 	"golang.org/x/term"
 )

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/brunty/koreader-sync-server/crypto"
+	"github.com/brunty/koreader-sync-server/internal/crypto"
 	"github.com/stretchr/testify/assert"
 )
 

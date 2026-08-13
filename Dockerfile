@@ -9,11 +9,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /build/main .
-
-WORKDIR /app/cmd/koreader_sync
-
-RUN go build -o /build/kor-cli .
+RUN go build -o /build/main ./cmd/koreader_sync_server
+RUN go build -o /build/kor-cli ./cmd/koreader_sync
 
 FROM alpine:latest
 

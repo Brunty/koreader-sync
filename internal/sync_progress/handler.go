@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/brunty/koreader-sync-server/handlers"
+	"github.com/brunty/koreader-sync-server/internal/handlers"
 )
 
 type SyncProgressHandler struct {

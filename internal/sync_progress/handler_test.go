@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brunty/koreader-sync-server/crypto"
-	"github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/handlers"
-	userpackage "github.com/brunty/koreader-sync-server/user"
+	"github.com/brunty/koreader-sync-server/internal/crypto"
+	"github.com/brunty/koreader-sync-server/internal/db"
+	"github.com/brunty/koreader-sync-server/internal/handlers"
+	userpackage "github.com/brunty/koreader-sync-server/internal/user"
 	"github.com/stretchr/testify/assert"
 )
 

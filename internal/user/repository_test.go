@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brunty/koreader-sync-server/db"
+	"github.com/brunty/koreader-sync-server/internal/db"
 	"github.com/stretchr/testify/assert"
 )
 

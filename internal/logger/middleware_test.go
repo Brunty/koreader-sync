@@ -9,7 +9,7 @@ import (
 
 	"testing"
 
-	"github.com/brunty/koreader-sync-server/request_id"
+	"github.com/brunty/koreader-sync-server/internal/request_id"
 	"github.com/stretchr/testify/assert"
 )
 

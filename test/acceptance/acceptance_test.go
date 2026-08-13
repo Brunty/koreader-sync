@@ -1,4 +1,4 @@
-package main
+package acceptance
 
 import (
 	"encoding/json"
@@ -12,9 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brunty/koreader-sync-server/crypto"
-	"github.com/brunty/koreader-sync-server/db"
-	userpackage "github.com/brunty/koreader-sync-server/user"
+	"github.com/brunty/koreader-sync-server/internal/crypto"
+	"github.com/brunty/koreader-sync-server/internal/db"
+	"github.com/brunty/koreader-sync-server/internal/server"
+	userpackage "github.com/brunty/koreader-sync-server/internal/user"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,7 +37,7 @@ func setupAcceptanceTests(t *testing.T) *httptest.Server {
 
 	db.SetupTables()
 
-	mux := &ServeMux{http.NewServeMux()}
+	mux := server.NewServeMux()
 	mux.RegisterRoutes()
 
 	return httptest.NewServer(mux)

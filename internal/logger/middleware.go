@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/brunty/koreader-sync-server/handlers"
-	"github.com/brunty/koreader-sync-server/request_id"
+	"github.com/brunty/koreader-sync-server/internal/handlers"
+	"github.com/brunty/koreader-sync-server/internal/request_id"
 )
 
 func LogRequestDetails(next http.Handler) http.Handler {

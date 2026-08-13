@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brunty/koreader-sync-server/crypto"
-	"github.com/brunty/koreader-sync-server/db"
-	user2 "github.com/brunty/koreader-sync-server/user"
+	"github.com/brunty/koreader-sync-server/internal/crypto"
+	"github.com/brunty/koreader-sync-server/internal/db"
+	user2 "github.com/brunty/koreader-sync-server/internal/user"
 	"github.com/stretchr/testify/assert"
 )
 

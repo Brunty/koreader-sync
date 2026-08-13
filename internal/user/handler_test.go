@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/brunty/koreader-sync-server/crypto"
-	"github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/handlers"
+	"github.com/brunty/koreader-sync-server/internal/crypto"
+	"github.com/brunty/koreader-sync-server/internal/db"
+	"github.com/brunty/koreader-sync-server/internal/handlers"
 	"github.com/stretchr/testify/assert"
 )
 

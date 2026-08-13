@@ -6,8 +6,8 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/brunty/koreader-sync-server/crypto"
-	userpackage "github.com/brunty/koreader-sync-server/user"
+	"github.com/brunty/koreader-sync-server/internal/crypto"
+	userpackage "github.com/brunty/koreader-sync-server/internal/user"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -1,20 +1,24 @@
-package main
+package server
 
 import (
 	"net/http"
 
-	"github.com/brunty/koreader-sync-server/auth"
-	database "github.com/brunty/koreader-sync-server/db"
-	"github.com/brunty/koreader-sync-server/handlers"
-	"github.com/brunty/koreader-sync-server/logger"
-	"github.com/brunty/koreader-sync-server/middleware"
-	"github.com/brunty/koreader-sync-server/request_id"
-	"github.com/brunty/koreader-sync-server/sync_progress"
-	"github.com/brunty/koreader-sync-server/user"
+	"github.com/brunty/koreader-sync-server/internal/auth"
+	database "github.com/brunty/koreader-sync-server/internal/db"
+	"github.com/brunty/koreader-sync-server/internal/handlers"
+	"github.com/brunty/koreader-sync-server/internal/logger"
+	"github.com/brunty/koreader-sync-server/internal/middleware"
+	"github.com/brunty/koreader-sync-server/internal/request_id"
+	"github.com/brunty/koreader-sync-server/internal/sync_progress"
+	"github.com/brunty/koreader-sync-server/internal/user"
 )
 
 type ServeMux struct {
 	*http.ServeMux
+}
+
+func NewServeMux() *ServeMux {
+	return &ServeMux{http.NewServeMux()}
 }
 
 func (mux ServeMux) RegisterRoutes() ServeMux {

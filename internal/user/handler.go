@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/brunty/koreader-sync-server/handlers"
+	"github.com/brunty/koreader-sync-server/internal/handlers"
 )
 
 type UserHandler struct {
