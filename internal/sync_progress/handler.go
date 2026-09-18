@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/brunty/koreader-sync-server/internal/auth"
 	"github.com/brunty/koreader-sync-server/internal/handlers"
 )
 
@@ -24,7 +25,13 @@ func (h *SyncProgressHandler) ReadSyncProgress(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	userId := r.Context().Value("user").(int64)
+	userId, ok := auth.UserIDFromContext(r.Context())
+	if !ok {
+		slog.Error("no user ID in context, is the auth middleware wired up for this route?")
+		handlers.WriteErrorResponse(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
 	progress, err := h.repo.SelectByUserIDAndDocument(r.Context(), userId, document)
 
 	if err != nil {
@@ -59,7 +66,13 @@ func (h *SyncProgressHandler) StoreSyncProgress(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	userId := r.Context().Value("user").(int64)
+	userId, ok := auth.UserIDFromContext(r.Context())
+	if !ok {
+		slog.Error("no user ID in context, is the auth middleware wired up for this route?")
+		handlers.WriteErrorResponse(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
 	progress := req.MarshalToSyncProgress(userId)
 
 	_, err = h.repo.Store(r.Context(), progress)

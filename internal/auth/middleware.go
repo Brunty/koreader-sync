@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -61,7 +60,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 		// like a session token, so just handle that manually in the DB if needed
 
 		// Attach the user ID to the context so they're usable elsewhere
-		ctx := context.WithValue(r.Context(), "user", user.Id)
+		ctx := ContextWithUserID(r.Context(), user.Id)
 
 		slog.Debug("auth middleware success for user", slog.Int("user ID", int(user.Id)))
 

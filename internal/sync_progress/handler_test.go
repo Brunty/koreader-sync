@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/brunty/koreader-sync-server/internal/auth"
 	"github.com/brunty/koreader-sync-server/internal/crypto"
 	"github.com/brunty/koreader-sync-server/internal/db"
 	"github.com/brunty/koreader-sync-server/internal/handlers"
@@ -67,7 +68,7 @@ func TestReadSyncProgress_Successfully(t *testing.T) {
 	req.Header.Add("x-auth-user", "test-username-here")
 	req.Header.Add("x-auth-key", "test-password-here")
 	req.SetPathValue("document", "document-here")
-	req = req.WithContext(context.WithValue(req.Context(), "user", *userID))
+	req = req.WithContext(auth.ContextWithUserID(req.Context(), *userID))
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(syncHandler.ReadSyncProgress)
@@ -112,7 +113,7 @@ func TestReadSyncProgress_SyncNotFoundInDB(t *testing.T) {
 	req.Header.Add("x-auth-user", "test-username-here")
 	req.Header.Add("x-auth-key", "test-password-here")
 	req.SetPathValue("document", "document-here")
-	req = req.WithContext(context.WithValue(req.Context(), "user", *userID))
+	req = req.WithContext(auth.ContextWithUserID(req.Context(), *userID))
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(syncHandler.ReadSyncProgress)
@@ -156,7 +157,7 @@ func TestGetSyncProgress_SyncNotFoundNoURLParam(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/syncs/progress/document-here", nil)
 	req.Header.Add("x-auth-user", "test-username-here")
 	req.Header.Add("x-auth-key", "test-password-here")
-	req = req.WithContext(context.WithValue(req.Context(), "user", *userID))
+	req = req.WithContext(auth.ContextWithUserID(req.Context(), *userID))
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(syncHandler.ReadSyncProgress)
@@ -223,7 +224,7 @@ func TestStoreSyncProgress_SuccessfulUpdateProgress(t *testing.T) {
 	req, _ := http.NewRequest("PUT", "/syncs/progress", body)
 	req.Header.Add("x-auth-user", "test-username-here")
 	req.Header.Add("x-auth-key", "test-password-here")
-	req = req.WithContext(context.WithValue(req.Context(), "user", *userID))
+	req = req.WithContext(auth.ContextWithUserID(req.Context(), *userID))
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(syncHandler.StoreSyncProgress)
@@ -249,7 +250,7 @@ func TestStoreSyncProgress_BadRequestBody(t *testing.T) {
 
 	body := strings.NewReader("not valid json")
 	req, _ := http.NewRequest("PUT", "/syncs/progress", body)
-	req = req.WithContext(context.WithValue(req.Context(), "user", int64(1)))
+	req = req.WithContext(auth.ContextWithUserID(req.Context(), int64(1)))
 
 	rr := httptest.NewRecorder()
 	handler.StoreSyncProgress(rr, req)
@@ -275,7 +276,7 @@ func TestStoreSyncProgress_ValidationError(t *testing.T) {
 	jsonBody, _ := json.Marshal(reqBody)
 	body := strings.NewReader(string(jsonBody))
 	req, _ := http.NewRequest("PUT", "/syncs/progress", body)
-	req = req.WithContext(context.WithValue(req.Context(), "user", int64(1)))
+	req = req.WithContext(auth.ContextWithUserID(req.Context(), int64(1)))
 
 	rr := httptest.NewRecorder()
 	handler.StoreSyncProgress(rr, req)
@@ -306,7 +307,7 @@ func TestStoreSyncProgress_RepoStoreError(t *testing.T) {
 	jsonBody, _ := json.Marshal(reqBody)
 	body := strings.NewReader(string(jsonBody))
 	req, _ := http.NewRequest("PUT", "/syncs/progress", body)
-	req = req.WithContext(context.WithValue(req.Context(), "user", int64(1)))
+	req = req.WithContext(auth.ContextWithUserID(req.Context(), int64(1)))
 
 	rr := httptest.NewRecorder()
 	handler.StoreSyncProgress(rr, req)
@@ -329,7 +330,7 @@ func TestReadSyncProgress_RepoSelectError(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/syncs/progress/document-here", nil)
 	req.SetPathValue("document", "document-here")
-	req = req.WithContext(context.WithValue(req.Context(), "user", int64(1)))
+	req = req.WithContext(auth.ContextWithUserID(req.Context(), int64(1)))
 
 	rr := httptest.NewRecorder()
 	handler.ReadSyncProgress(rr, req)
