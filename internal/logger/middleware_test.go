@@ -66,7 +66,7 @@ func TestLogRequestDetails_WithRequestID(t *testing.T) {
 
 	logOutput := buf.String()
 	assert.Contains(t, logOutput, "request received")
-	assert.Contains(t, logOutput, "requestID=request-id-here")
+	assert.Contains(t, logOutput, "requestID="+reqID.String())
 	assert.Contains(t, logOutput, "127.0.0.1:12345")
 	assert.Contains(t, logOutput, "GET")
 	assert.Contains(t, logOutput, "/test/path")
