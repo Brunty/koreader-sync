@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bytes"
-	"context"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/brunty/koreader-sync-server/internal/request_id"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,7 +35,7 @@ func TestLogRequestDetails(t *testing.T) {
 
 	logOutput := buf.String()
 	assert.Contains(t, logOutput, "request received")
-	assert.Contains(t, logOutput, "requestID")
+	assert.Contains(t, logOutput, `requestID=""`)
 	assert.Contains(t, logOutput, "127.0.0.1:12345")
 	assert.Contains(t, logOutput, "GET")
 	assert.Contains(t, logOutput, "/test/path")
@@ -54,10 +54,9 @@ func TestLogRequestDetails_WithRequestID(t *testing.T) {
 
 	req := httptest.NewRequest("GET", "/test/path", nil)
 	req.RemoteAddr = "127.0.0.1:12345"
+	reqID := uuid.New()
 
-	ctx := req.Context()
-	ctx = context.WithValue(ctx, request_id.ContextKeyRequestID, "request-id-here")
-	req = req.WithContext(ctx)
+	req = req.WithContext(request_id.ContextWithRequestID(req, reqID))
 
 	handler := LogRequestDetails(nextHandler)
 	rr := httptest.NewRecorder()

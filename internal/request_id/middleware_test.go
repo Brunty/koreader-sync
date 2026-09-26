@@ -11,7 +11,9 @@ import (
 
 func TestItAddsRequestId(t *testing.T) {
 	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		assert.NotEqual(t, "", r.Context().Value(ContextKeyRequestID))
+		requestID, ok := RequestIDFromContext(r.Context())
+		assert.True(t, ok)
+		assert.NotEqual(t, "", requestID)
 		w.WriteHeader(http.StatusOK)
 	})
 

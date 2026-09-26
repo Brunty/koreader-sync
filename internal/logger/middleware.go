@@ -17,12 +17,12 @@ func LogRequestDetails(next http.Handler) http.Handler {
 			proto  = r.Proto
 		)
 
-		requestID := r.Context().Value(request_id.ContextKeyRequestID)
+		requestID, _ := request_id.RequestIDFromContext(r.Context())
 
 		userAttrs := slog.Group("user", "ip", ip)
 		requestAttrs := slog.Group("request", "method", method, "url", url, "proto", proto)
 
-		slog.Info("request received", slog.Any("requestID", requestID), userAttrs, requestAttrs)
+		slog.Info("request received", slog.String("requestID", requestID), userAttrs, requestAttrs)
 		next.ServeHTTP(w, r)
 	})
 }
